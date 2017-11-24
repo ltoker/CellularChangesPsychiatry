@@ -1,0 +1,40 @@
+Probe	GeneSymbol	GeneFunction	Description	Brain expression	Model	PvalueUp	QvalueUp	FoldChange	AgeGene	pHGene	CellType	Probe Specificity
+203548_s_at	LPL	Metabolic process	lipoprotein lipase; lipid transport and clearance of circulating triglyceride	present	2	8.29E-07	9.58E-03	1.11	X		neuron	Insensitive
+210057_at	SMG1	Metabolic process; Stress response	Ser/Thr kinase; nonsense mediated decay of mRNA; stress response pathways; cell survival during TNFalpha induced stress	present	4	8.62E-07	9.58E-03	1.04				Non-specific
+209069_s_at	LOC440093|H3F3B	Unknown	---		2	3.70E-06	2.05E-02	1.11				Non-specific
+216048_s_at	RHOBTB3	Transport	fetal GTPase; suggested participation in some aspects of vesicle trafficking	present	2	3.37E-06	2.05E-02	1.11	X	X	oligodendrocyte	Insensitive
+213187_x_at	FTL	Ion transport	storage of soluble iron; iron homeostasis	n/a	2	4.92E-06	2.18E-02	1.11				
+202619_s_at	PLOD2	Metabolic process; Cell maintenance/biogenesis	lysyl hydroxlase; ECM maintenance	present	fullModel	1.37E-05	5.07E-02	1.12	X	X		
+202975_s_at	RHOBTB3	Transport	fetal GTPase; suggested participation in some aspects of vesicle trafficking	n/a	fullModel	1.99E-05	6.31E-02	1.16	X	X	oligodendrocyte	Insensitive
+204060_s_at	PRKY|PRKX	Unknown	---		2	3.91E-05	7.16E-02	1.11				Non-specific
+209747_at	BCYRN1|TGFB3	Unknown	---		2	4.58E-05	7.16E-02	1.11				
+212788_x_at	FTL	Ion transport	storage of soluble iron; iron homeostasis	n/a	fullModel	5.16E-05	7.16E-02	1.09				
+213501_at	ACOX1	Metabolic process	Acyl-CoA oxidase; associated with pseudoneonatal disease characterized by mental retardation	n/a	2	3.21E-05	7.16E-02	1.06				
+216762_at	Unknown		---	n/a	2	4.87E-05	7.16E-02	1.05				Mis-targeted
+218345_at	TMEM176A	Unknown	transmembrane protein; antigen	n/a	fullModel	4.51E-05	7.16E-02	1.10			astrocyte	
+219156_at	SYNJ2BP	Unknown	syanptojanin (synaptic vesicle recovery) binding protein	present	4	4.43E-05	7.16E-02	1.03				
+221503_s_at	KPNA3	Transport	nuclear protein import as an adaptor protein; cell trafficking transport	n/a	3	4.69E-05	7.16E-02	1.02				
+59625_at	NOL3	RNA processing	nucleolar protein; involved in alternate splice site selection; regulator of cell death	present (neuron)	2	3.57E-05	7.16E-02	1.08			neuron	
+202506_at	SSFA2	Cell maintenance/biogenesis	may be a cytoskeleton associated protein; regulation of filamentous actin	n/a	2	5.51E-05	7.20E-02	1.11			astrocyte	
+203549_s_at	LPL	Metabolic process	lipoprotein lipase; lipid transport and clearance of circulating triglyceride	present	2	7.11E-05	7.46E-02	1.14	X		neuron	
+207543_s_at	P4HA1	Metabolic process	enzyme for catalyzing formation of 4-hydroxyproline	n/a	3	6.18E-05	7.46E-02	1.12				
+209144_s_at	CBFA2T2	Transcription; Translation	transcriptional co-factor; involved in chromatin repression	highly 	3	7.38E-05	7.46E-02	1.04				
+219426_at	EIF2C3	Transcription; Translation	translation initiation factor	n/a	2	7.08E-05	7.46E-02	1.05				
+221868_at	PAIP2B	Transcription; Translation	poly A binding protein interacting protein	highly 	2	7.01E-05	7.46E-02	1.21				
+211992_at	WNK1	Signal transduction	Ser/Thr kinase; ion homeostasis; regulation of LINGO1 mediated inhibition of neurite extension	highly	2	8.88E-05	8.22E-02	1.07	X		oligodendrocyte	
+213015_at	BBX	Transcription; Translation	transcription factor	present (developing brain)	2	9.25E-05	8.22E-02	1.05				Insensitive
+220522_at	CRB1	Signal transduction	CRUMBS family structural protein; retina development	present	2	8.54E-05	8.22E-02	1.09				
+211997_x_at	H3F3B|LOC440093	Unknown	---		2	9.95E-05	8.51E-02	1.07				Non-specific
+200063_s_at	LMBRD1|FAM172A|CLEC2D|BC108660|NPM1|DQ583108	Unknown	---		4	1.10E-04	8.60E-02	1.05				Non-specific
+208697_s_at	EIF3E	Transcription; Translation	translation initiation factor; proto-oncogene; quality control of specific mRNAs	"present (neural crest, notochord, neuroendocrine)"	4	1.12E-04	8.60E-02	1.05				
+213016_at	BBX	Transcription; Translation	transcription factor	present (developing brain)	2	1.10E-04	8.60E-02	1.11				
+201051_at	ANP32A	Signal transduction; Transcription	nucleoplasmic shuttling protein; regulation of gene expression; modulates histone acetylation levels of neuron-specific cytoskeletal genes	highly (developing brain and postnatal)	3	1.21E-04	8.81E-02	1.06				
+204032_at	BCAR3	Signal transduction; Cell growth	GTPase mediated signal transduction; regulating cell growth and apoptosis In hormone sensitive cells; involved in drug response	n/a	3	1.31E-04	8.81E-02	1.06	X		astrocyte	
+211994_at	WNK1	Signal transduction	Ser/Thr kinase; ion homeostasis; regulation of LINGO1 mediated inhibition of neurite extension	highly	2	1.23E-04	8.81E-02	1.12	X		oligodendrocyte	
+216520_s_at	FLJ44635|TPT1|PZP	Unknown	---		4	1.31E-04	8.81E-02	1.05				Non-specific
+203504_s_at	ABCA1	Transport	ABC transporter; cholesterol efflux; variant associated with AD	n/a	fullModel	1.38E-04	8.98E-02	1.12			astrocyte	Insensitive
+217985_s_at	BAZ1A	Transcription; Translation	chromatin remodeling protein; heterochromatin formation in developmental control	n/a	2	1.49E-04	9.43E-02	1.05				
+218826_at	SLC35F2	Unknown	solute carrier family protein	present	2	1.53E-04	9.43E-02	1.05				
+201927_s_at	PKP4	Cell maintenance/biogenesis	beta catenin family; structural protein; cell organization and biogenesis	present	3	1.59E-04	9.46E-02	1.11				
+201929_s_at	PKP4	Cell maintenance/biogenesis	beta catenin family; structural protein; cell organization and biogenesis	present	3	1.66E-04	9.46E-02	1.16				Non-specific
+220532_s_at	TMEM176B	Unknown	transmembrane protein	present	2	1.62E-04	9.46E-02	1.13			astrocyte	

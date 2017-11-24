@@ -1,0 +1,87 @@
+Probe	GeneSymbol	GeneFunction	Description	Brain expression	Model	PvalueDown	QvalueDown	FoldChange	AgeGene	pHGene	CellType	Probe Specificity
+210720_s_at	NECAB3	Signal transduction	neuronal calcium binding protein; inhibits the association of X11L with amyloid precursor protein	highly	2	6.89E-07	6.17E-03	0.92				Non-specific
+212646_at	RFTN1	Cell maintenance/ biogenesis	formation/maintenance of lipid rafts	n/a	2	8.33E-07	6.17E-03	0.91	X		oligodendrocyte	
+213924_at	Unknown	Unknown	---		2	7.31E-07	6.17E-03	0.89				Insensitive
+206355_at	GNAL	Signal transduction	modulator in various transmembrane signaling systems; mediating neurotransmitter effects	present 	2	1.67E-06	7.42E-03	0.87			neuron	Insensitive
+220807_at	HBQ1	Oxygen transport	globin family; oxygen transport	n/a	2	1.37E-06	7.42E-03	0.91	X			
+220741_s_at	PPA2	Metabolic process	phosphate metabolism with N-terminal targeting to mitochondrial matrix	"highly (neuroendocrine, pituatary)"	3	2.58E-06	9.55E-03	0.92				
+205694_at	TYRP1	Metabolic process	melanosomal enzyme	n/a	2	3.78E-06	1.20E-02	0.88				Insensitive
+219032_x_at	OPN3	Signal transduction	GPCR pathway; possible entrainment of circadian rhythms	present	2	9.76E-06	2.71E-02	0.89			neuron	Insensitive
+205510_s_at	GABPB1|FLJ10038	Unknown	---		2	1.11E-05	2.74E-02	0.93				
+212987_at	FBXO9	Ubiquitination	phosphorylation dependent ubiquitination; component of E3 ubiquitin protein ligase complex	present	fullModel	1.48E-05	3.28E-02	0.88	X			Insensitive
+202596_at	ENSA	Energy Metabolism; Oxidative Phosphorylation	regulator of ATP channel; coupling cell metabolism to electrical activity	highly	fullModel	2.65E-05	4.20E-02	0.90	X		neuron	Insensitive
+203719_at	ERCC1	Cell maintenance/ biogenesis	DNA repair	n/a	2	2.31E-05	4.20E-02	0.94				
+218328_at	COQ4	Oxidative phosphorylation	ubiquinone biosynthesis protein (a component of the ETC)	present	4	2.35E-05	4.20E-02	0.93				
+218653_at	SLC25A15	Energy metabolism	mitochondrial orthinine transporter (urea cycle)	n/a	2	2.58E-05	4.20E-02	0.94				
+206290_s_at	RGS7	Signal transduction	crucial regulator of GPCR signaling in visual and nervous systems	highly (neuron)	2	3.23E-05	4.36E-02	0.89	X			Non-specific
+218262_at	RMND5B	Cell maintenance/biogenesis	suggestive role in meiosis	highly (hypothalamus)	2	3.06E-05	4.36E-02	0.95				
+219825_at	CYP26B1	Oxidative Phosphorylation	electron transport	present	fullModel	3.33E-05	4.36E-02	0.86	X		neuron	
+206356_s_at	GNAL	Signal transduction	modulator in various transmembrane signaling systems; mediating neurotransmitter effects	present	2	3.95E-05	4.81E-02	0.90			neuron	
+219982_s_at	SERF1B|SMA4|SERF1A|GUSBP1|SERF1B|SERF1A	Unknown	---		3	4.11E-05	4.81E-02	0.89				
+203851_at	IGFBP6	Cell maintenance/ biogenesis; Signal transduction	cytokine growth factor; cell growth and/or maintenance	predominantly CSF and serum	2	4.51E-05	5.00E-02	0.91				
+203349_s_at	ETV5	Oxidative phosphorylation; Energy metabolism	TF; proto-oncogene; important role in development	present	2	6.70E-05	6.76E-02	0.92	X		astrocyte	Insensitive
+205413_at	MPPED2	Development	fetal brain protein 239; neurogenesis	highly	fullModel	6.64E-05	6.76E-02	0.89	X			
+219997_s_at	COPS7B	Ubiquitination; Signal Transduction	component of a signalosome complex; modulating multiple signaling pathways	present	4	7.54E-05	7.28E-02	0.97				
+206209_s_at	CA4	Metabolic process; Ion transport	carbonic anhydrase; cellular ion transport and pH homeostasis	n/a	fullModel	9.34E-05	7.41E-02	0.92	X			
+206215_at	OPCML	Cell adhesion; Neurotransmission	 synaptic cell adhesion molecule; regulated in response to neuronal activity; possible role in proliferation  in cortical astrocytes	"highly (cerebral cortex, cerebellum)"	2	8.68E-05	7.41E-02	0.94	X		oligodendrocyte	
+207949_s_at	ICA1	Signal transduction; Neurotransmitter transport	insulin dependent diabetes antigen; neurotransmitter transport (inferred)	highly	2	9.05E-05	7.41E-02	0.95	X			
+209871_s_at	APBA2	Neurotransmission	neuronal gene with putative function in synaptic exocytosis	present (neuronal)	5	8.76E-05	7.41E-02	0.95				
+215003_at	DGCR5	Unknown	---		fullModel	8.91E-05	7.41E-02	0.93				
+201190_s_at	PITPNA	Neurotransmission; Signal transduction	signaling transport protein; required for Ca activated secretion	present	fullModel	1.11E-04	7.54E-02	0.93	X			
+201310_s_at	C5orf13	Neurotransmission	may have roles in neural function; promotes axonal regeneration (by similarity)	n/a	2	1.13E-04	7.54E-02	0.93	X			
+201694_s_at	EGR1	Transcription; Translation	TF for target genes required for mitogenesis and differentiation; regulator of inflammatory and immune processes; expression is regulated by synaptic activity	present	2	1.09E-04	7.54E-02	0.89				
+202688_at	TNFSF10	Signal transduction	signaling cytokine; cell death/apoptosis	n/a	3	1.16E-04	7.54E-02	0.83				
+204000_at	GNB5	Signal transduction	G-protein; interact with RGS family of proteins	highly	4	1.14E-04	7.54E-02	0.94	X	X		
+205489_at	CRYM	Metabolic process	thyroid binding protein; involved in normal auditory function; associated with neurosensory deafness	present	fullModel	1.14E-04	7.54E-02	0.87	X		neuron	
+221983_at	FAM134A		potential proto-oncogene	n/a	3	1.19E-04	7.54E-02	0.93				
+202322_s_at	GGPS1	Metabolic process	synthesis of prenylated proteins	present	5	1.58E-04	8.55E-02	0.95				Non-specific
+203769_s_at	STS	Metabolic process	sulfatase family; intra-mitochondrial movement of cholesterol	n/a	3	1.54E-04	8.55E-02	0.91				
+205003_at	DOCK4	Signal transduction	intracellular signaling; activator of small G-proteins; potential function in dendritic morphogenesis in hippocampal neurons	present	3	1.57E-04	8.55E-02	0.95				
+208870_x_at	ATP5C1	Oxidative phosphorylation	ATP synthase; component of complex required for oxidative phosphorylation	present	fullModel	1.51E-04	8.55E-02	0.93				
+212942_s_at	KIAA1199	Cell maintenance/ biogenesis	cell mortality;  involved in perception of sound	present	2	1.47E-04	8.55E-02	0.92				
+34726_at	CACNB3	Signal transduction	calcium channel subunit; increasing peak calcium current	highly	2	1.57E-04	8.55E-02	0.93	X			
+201328_at	ETS2	Transcription; Translation	TF; proto-oncogene; regulation of neuronal apoptosis	neuron specific	3	1.63E-04	8.60E-02	0.90			neuron	
+203339_at	SLC25A12	Oxidative phosphorylation; Energy metabolism	calcium binding protein; mitochondrial transport; energy transfer	lowly	4	1.74E-04	8.66E-02	0.87				Non-specific
+204679_at	KCNK1	Ion transport; Neurotransmission	potassium channel; regulation of K+ homeostasis; ion transport	highly	2	1.79E-04	8.66E-02	0.88	X		astrocyte	
+212252_at	CAMKK2	Signal transduction; Neurotransmitter transport	Ca/Cam dependent Ser/Thr protein kinase; regulates hypothalamic production of NPY	highly	2	1.78E-04	8.66E-02	0.94	X		neuron	Insensitive
+213366_x_at	ATP5C1	Oxidative phosphorylation; Energy metabolism	ATP synthase; component of complex V of oxidative phosphorylation	present	fullModel	1.70E-04	8.66E-02	0.93				
+202159_at	FARSA	Transcription; Translation	cell organization; biogenesis; tRNA sythetase subunit	n/a	2	2.20E-04	8.76E-02	0.95	X			
+203188_at	B3GNT1	Metabolic process	carbohydrate metabolism	highly	2	1.94E-04	8.76E-02	0.95	X			
+204002_s_at	ICA1	Signal transduction; Neurotransmitter transport	insulin dependent diabetes antigen; neurotransmitter transport (inferred)	n/a	2	1.98E-04	8.76E-02	0.96	X			
+204869_at	PCSK2	Metabolic process	enzyme involved in processing of hormones and other protein precursors	present (diencephalon)	2	2.19E-04	8.76E-02	0.89	X		neuron	
+205794_s_at	NOVA1	Neurotransmission; RNA processing	ventral neuron specific protein; regulating RNA splicing or metabolism in developing neurons; regulating functional and structural synaptic changes	present	3	2.05E-04	8.76E-02	0.94	X			
+209093_s_at	GBA	Metabolic process	glucosidase; degradation of complex glycolipids; GWAS for PD and Lewy body disorders (AD)	highly	2	2.11E-04	8.76E-02	0.95				
+209699_x_at	AKR1C2|AKR1C1|AKR1C3	Metabolic Process	Aldo-ketoreductase; carbohydrate metabolism	highly	2	2.11E-04	8.76E-02	0.93				Non-specific
+210638_s_at	FBXO9	Ubiquitination	phosphorylation dependent ubiquitination; component of E3 ubiquitin protein ligase complex	present	fullModel	2.21E-04	8.76E-02	0.88	X			
+218125_s_at	CCDC25	Unknown	---		2	2.16E-04	8.76E-02	0.92				
+220031_at	OTUD7B	Ubiquitination; Transcription	TF regulating inflammatory processes; deubiquitinating activity	present	3	1.97E-04	8.76E-02	0.96			oligodendrocyte	
+202852_s_at	FLJ11506	Protein transport	may play a role in membrane traffic (by similarity)	n/a	3	2.27E-04	8.79E-02	0.91	X			
+206490_at	DLGAP1	Neurotransmission; Signal transduction	neuronal cell signaling; molecular organization of synapses; inducing enrichment of PSD-95 at PM	neuron specific	3	2.29E-04	8.79E-02	0.94	X			
+205114_s_at	TBC1D3G|CCL3L3|CCL3L1|TBC1D3C|CCL3|CCL3L3|CCL3L1|CCL3	Unknown	---	present	2	2.38E-04	8.97E-02	0.88				Non-specific
+203476_at	TPBG	Cell adhesion	Oncofetal antigen; trophoblast specific  glycoprotein	present	2	2.83E-04	9.61E-02	0.89	X		astrocyte	
+204676_at	TMEM186	Unknown	---		3	2.79E-04	9.61E-02	0.94				
+205381_at	LRRC17	Unknown	leucine rich repeat proteins	n/a	3	2.84E-04	9.61E-02	0.91				
+210874_s_at	HYAL3	Metabolic process	enzyme secreted in sperm involved in fertilization	n/a	2	2.90E-04	9.61E-02	0.94				
+211038_s_at	CROCC|CROCCL1|FLJ00313	Unknown	---		3	2.87E-04	9.61E-02	0.95				Non-specific
+214285_at	FABP3	Metabolic process	fatty acid binding protein; intracellular metabolism of long chain fatty acids 	n/a	fullModel	2.61E-04	9.61E-02	0.90	X		neuron	
+217946_s_at	SAE1	Ubiquitination	ubiquitin activating	n/a	fullModel	2.85E-04	9.61E-02	0.95	X			Non-specific
+221921_s_at	CADM3	Cell adhesion; Neurotransmission	synaptic cell adhesion molecule	highly	2	2.72E-04	9.61E-02	0.97				
+218569_s_at	KBTBD4	Cell maintenance/biogenesis	may have role in organizing actin cytoskeleton of brain cells	present	2	2.97E-04	9.69E-02	0.94				
+201410_at	PLEKHB2	Transport	transport; import of protein or lipid in membranous organelles	present	3	3.58E-04	9.82E-02	0.94	X			
+202250_s_at	DCAF8	Ubiquitination	interacts with the E3 ligase complex	n/a	3	3.55E-04	9.82E-02	0.94				
+202289_s_at	TACC2	Cell maintenance/ biogenesis	mitotic spindle maintenance; organizing centrosomal microtubules	present	2	3.27E-04	9.82E-02	0.94			neuron	
+202667_s_at	SLC39A7	Transport ; Neurotransmission; Energy Metabolism	heavy metal ion transport; possibly supporting brain energy utilization and neurotransmission	present	3	3.52E-04	9.82E-02	0.95				
+204685_s_at	ATP2B2	Oxidative metabolism; Neurotransmission	Ca transporter; critical for clearance of calcium from excitable cells; influences glutamate release from excitatory terminals	"highly (cerebellum, hippocampus, purkinje cells)"	2	3.33E-04	9.82E-02	0.94	X		neuron	
+206023_at	NMU	Signal transduction; Neurotransmitter transport	neuromedin U; neuropeptide; signaling neurotransmitter	present	fullModel	3.21E-04	9.82E-02	0.90	X			
+211796_s_at	TCRVB|TCRBV2S1|TCRBV17S1|TCRVB	Unknown	---		fullModel	3.18E-04	9.82E-02	0.92				Non-specific
+212296_at	PSMD14	Ubiquitination	responsible for substrate deubiquitination during proteasomal degradation	n/a	3	3.34E-04	9.82E-02	0.95				
+214092_x_at	SFRS14	RNA processing	splicing factor; pre-mRNA processing	present	3	3.26E-04	9.82E-02	0.97				
+214619_at	CRHR1	Signal transduction	corticotropin releasing hormone receptor; GPCR signaling; mediating stress response and anxiety related behaviour	"present (cortex, cerebellum, hypothalamus)"	4	3.17E-04	9.82E-02	0.95			neuron	
+214883_at	THRA	Signal transduction; Transcription	thyroid hormone receptor (signaling); TF; capacity to play important role in developing and adult neurons	highly (neuron)	4	3.38E-04	9.82E-02	0.96				
+216970_at	Unknown	Unknown	---		2	3.49E-04	9.82E-02	0.96				Mis-targeted
+64488_at	IRGQ|AK128554	Unknown	---		2	3.51E-04	9.82E-02	0.95				Non-specific
+218032_at	SNN	Response to stress; Cell maintenance/biogenesis	several key signaling pathways; sensor of mitchondrial damage; stress repsonse	highly	2	3.63E-04	9.84E-02	0.96	X			
+205061_s_at	EXOSC9	RNA processing	exosome component; RNA processing	n/a	3	3.77E-04	9.97E-02	0.96				Non-specific
+206435_at	B4GALNT1	Metabolic process	synthesis of glycolipids; associated with neurdegenerative disorder NPC1 mouse model	highly	2	3.79E-04	9.97E-02	0.96	X		neuron	
+214674_at	USP19	Ubiquitination	deubiquitinating enzyme in conjunction with 26S proteasome	n/a	5	3.85E-04	9.97E-02	0.96				
+218968_s_at	ZFP64	Transcription; Translation	TF recruited to the promoters of NOTCH target genes	n/a	2	3.86E-04	9.97E-02	0.94				
