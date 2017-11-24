@@ -1,0 +1,19 @@
+StudyID	Investigator	Samples	Controls	Depression	Bipolar	Schizophrenia	Collection	NeuExpRegion	Region	ArrayType	Genes
+1	AltarA	98	YES	NO	YES	YES	A	Cortex	FrontalBA46	hgu133a	22283
+2	AltarC	72	YES	YES	YES	YES	C	Cortex	FrontalBA46/10	hgu133a	22283
+3	Bahn	101	YES	NO	YES	YES	A	Cortex	FrontalBA46	hgu133a	22283
+4	Chen	27	YES	NO	YES	NO	C	Cortex	FrontalBA6	hgu133p	54681
+5	Dobrin	86	YES	NO	YES	YES	A	Cortex	FrontalBA46	hgu133p	54681
+6	Feinberg	100	YES	YES	YES	YES	C	Cerebellum	Cerebellum	hgu95av2	12453
+7	Kato	102	YES	NO	YES	YES	A	Cortex	FrontalBA46	hgu133a	22283
+9	AltarB	100	YES	YES	YES	YES	C	Cortex	FrontalBA46/10	agilent	12373
+10	SklarB	46	YES	YES	YES	YES	C	Cerebellum	Cerebellum	hgu95av2	12453
+12	Vawter	95	YES	NO	YES	YES	A	Cortex	FrontalBA46	codelink	19907
+13	Young	105	YES	NO	YES	YES	A	Cortex	FrontalBA46	cDNA	14369
+14	SklarA	47	YES	YES	YES	YES	C	Cortex	FrontalBA8/9	hgu95av2	12453
+15	KatoB	50	YES	YES	YES	YES	C	Cortex	PFC (BA10)	hgu95av2	12453
+16	Kemether	49	YES	YES	YES	YES	C	Thalamus	thalamus (MD)	hgu133p	54681
+17	Laeng	61	YES	NO	YES	YES	A	Hippocampus	hippocampus (CA1)	hgu133p	54681
+18	Sokolov	59	YES	YES	YES	YES	C	Cortex	temporal cortex (BA21)	hgu95a	12453
+19	Weis	84	YES	NO	NO	YES	O	Liver	Liver	hgu133p	54681
+20	Liu	153	YES	YES	YES	YES	A&C	Cerebellum	Cerebellum	Affy SNP 5.0	0
