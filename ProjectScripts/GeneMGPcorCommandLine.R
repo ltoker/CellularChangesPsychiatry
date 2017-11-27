@@ -1,12 +1,4 @@
-setwd("/home/ltoker/CellularProportionsPsychiatry")
-GenScriptPath = "/home/ltoker/Rscripts/"
-ProjScriptPath = "ProjectScripts/"
-source(paste0(GenScriptPath,"general_functions.R"))
-source(paste0(ProjScriptPath,"projectFunc.R"))
-packageF("sva")
-packageF("gplots")
-packageF("scales")
-detach("package:dplyr", unload=TRUE)
+source("SetUp.R")
 packageF("dplyr")
 packageF("doParallel")
 

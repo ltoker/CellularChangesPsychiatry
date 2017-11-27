@@ -1,13 +1,4 @@
-GenScriptPath = "/home/ltoker/Rscripts/"
-ProjScriptPath = "ProjectScripts/"
-ResultsPath = "GeneralResults/"
-source(paste0(GenScriptPath,"general_functions.R"))
-source(paste0(ProjScriptPath, "projectFunc.R"))
-packageF("sva")
-packageF("gplots")
-packageF("scales")
-
-
+source("SetUp.R")
 StanleySamples <- read.table("MetadataStanley.csv", header = T, sep = "\t")
 StanleyStudies <- read.table("StanleyStudies.txt", header = TRUE, sep = "\t")
 StudySamplesAll <- c("Dataset", "BrainRegion", "BrainRegion(Org)",  "Platform", "NoiseThreshold", "Samples(Org)", "SingleBatchExcluded",

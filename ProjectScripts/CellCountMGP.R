@@ -1,16 +1,6 @@
-load("GeneralResults/studyFinalStanleyConsortium.rda")
-GenScriptPath = "/home/ltoker/Rscripts/"
-ProjScriptPath = "ProjectScripts/"
-if(!"GeneralResults" %in% list.dirs(full.names = FALSE)){
-  dir.create("GeneralResults")
-}
-GeneralResultsPath = 'GeneralResults/'
+source("SetUp.R")
 
-source(paste0(GenScriptPath,"general_functions.R"))
-packageF("sva")
-packageF("gplots")
-packageF("scales")
-source("ProjectScripts/projectFunc.R")
+load("GeneralResults/studyFinalStanleyConsortium.rda")
 
 plotCountsMGPgroupResults <- function(data){
   ContMedian <- data %>% filter(Profile == "Cont") %>% group_by(MeasureType) %>%

@@ -1,12 +1,4 @@
-GenScriptPath = "/home/ltoker/Rscripts/"
-ProjScriptPath = "ProjectScripts/"
-ResultsPath = "GeneralResults/"
-source(paste0(GenScriptPath,"general_functions.R"))
-source(paste0(ProjScriptPath, "projectFunc.R"))
-packageF("sva")
-packageF("gplots")
-packageF("scales")
-
+source("SetUp.R")
 # Runing ermineJ for cell type profiles.
 
 # First steps to run ErmineJ from command line:

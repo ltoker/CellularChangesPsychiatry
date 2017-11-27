@@ -1,20 +1,4 @@
-GenScriptPath = "/home/ltoker/Rscripts/"
-ProjScriptPath = "ProjectScripts/"
-if(!"GeneralResults" %in% list.dirs(full.names = FALSE)){
-  dir.create("GeneralResults")
-}
-GeneralResultsPath = 'GeneralResults/'
-
-source(paste0(GenScriptPath,"general_functions.R"))
-source(paste0(GenScriptPath,"Cell_type_PCA.R"))
-
-packageF("sva")
-packageF("gplots")
-packageF("scales")
-select = dplyr::select
-filter = dplyr::filter
-mutate = dplyr::mutate
-source(paste0(ProjScriptPath,"projectFunc.R"))
+source("SetUp.R")
 
 PreProcces2 <- function(Data, meta){
   aned <- Data$aned
@@ -53,7 +37,7 @@ plotDevelopMGP <- function(data, xVal, yVal, title, xlab = "", ylab = "Gene-MGP 
           legend.position = "none") +
     scale_fill_manual(values = colors, name="") +
     geom_violin(aes_string(fill = xVal), alpha = 0.6) +
-    geom_boxplot(width = 0.1, outlier.size = NA) +
+    geom_boxplot(width = 0.1, outlier.shape = NA) +
     geom_abline(intercept = 0, slope = 0, color = "red", linetype="dashed")
   return(plot)
 }
@@ -207,14 +191,10 @@ DevelopCor$PVdevelop <- sapply(DevelopCor$GeneSymbol, function(gene){
 #Plot example for genes down and upregulated during development
 GeneMGPcorDevPlots <- GeneMgpCorDev()
 
-ggsave("GeneralResults/GeneMGPcorDev.pdf", width = 20,  height = 6, units = "in",
-       dpi=300)
-
 #Plot Okaty mouse GabaPV development plot
 GeneMGPcorDevPlots$OkatyPlot <- plotDevelopMGP(data = DevelopCor, xVal = "PVdevelop", yVal = "Cor",
                             title = "Okaty 2009 (GSE17806)\nmouse development data")
-ggsave("GeneralResults/OkatyDevelopment.pdf", plot = GeneMGPcorDevPlots$OkatyPlot, width = 6, height = 6, units = "in",
-       dpi=300)
+
 
 
 
@@ -273,12 +253,10 @@ GSE25219meta$ScanDate <- Data$scanDate[match(GSE25219meta$GSM, names(Data$scanDa
 
 GSE25219data <- PreProcces2(Data, GSE25219meta)
 
-GSE25219data_org <- GSE25219data
-
 GSE25219GabaPV <- GSE25219data$aned_high %>% filter(GeneSymbol %in% markerGabaPVhuman)
 rownames(GSE25219GabaPV) <- GSE25219GabaPV$GeneSymbol
 
-GSE25219GabaPVMGP <- shortPCA(GSE25219GabaPVMGP, "GabaPV_Genes")
+GSE25219GabaPVMGP <- shortPCA(GSE25219GabaPV, "GabaPV_Genes")
 
 
 genesHuman <- c(PVdevelopUPhuman, PVdevelopDownhuman) 
@@ -302,8 +280,6 @@ GSE25219DevelopCor$PVdevelop <- sapply(GSE25219DevelopCor$GeneSymbol, function(g
 GeneMGPcorDevPlots$KangPlot <- plotDevelopMGP(data = GSE25219DevelopCor, xVal = "PVdevelop", yVal = "Cor",
                            title = "Kang 2011 (GSE25219)\nhuman development data")
 
-ggsave("GeneralResults/KangDevelopment.pdf", plot = GeneMGPcorDevPlots$KangPlot, width = 6, height = 6, units = "in",
-       dpi=300)
 
 ###### GSE13564 #########################
 DevDataPath = "DevelopmentData/GSE13564/data/"
@@ -444,9 +420,6 @@ allStudyCorMean$PVdevelop <- sapply(allStudyCorMean$GeneSymbol, function(gene){
 GeneMGPcorDevPlots$PsychiatryMeanPlot <- plotDevelopMGP(data = allStudyCorMean %>% filter(PVdevelop != "NS") %>% droplevels(),
                                      xVal = "PVdevelop", yVal = "meanCor",
                                      title = "Mean Psychiatry data")
-
-ggsave("GeneralResults/PsychiatryMean.pdf", plot = GeneMGPcorDevPlots$PsychiatryMeanPlot, width = 6, height = 6, units = "in",
-       dpi=300)
 
 allGroupCorMean <- group_by(allStudyCor, Study, CellType, GeneSymbol) %>%
   summarise(meanCor = mean(Cor)) %>%

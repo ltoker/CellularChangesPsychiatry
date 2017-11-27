@@ -1,10 +1,4 @@
-GenScriptPath = "/home/ltoker/Rscripts/"
-ProjScriptPath = "ProjectScripts/"
-source(paste0(GenScriptPath,"general_functions.R"))
-source(paste0(ProjScriptPath, "projectFunc.R"))
-packageF("sva")
-packageF("gplots")
-packageF("scales")
+source("SetUp.R")
 source(paste0(GenScriptPath, "Cell_type_PCA.R"))
 
 GetStar <-  function(pvals){

@@ -1,6 +1,6 @@
-DarmanisExp <- neuroExpressoAnalysis::DarmanisHumanExp %>% data.frame()
+DarmanisExp <- load("DarmanisHumanExp.rda") %>% data.frame()
 DarmanisExp$GeneSymbol <- rownames(DarmanisExp)
-DarmanisMeta <- neuroExpressoAnalysis::DarmanisHumanMeta
+DarmanisMeta <- load("DarmanisHumanMeta.rda")
 
 GetHumanExp <- function(genes, markerInfo = NULL, corInfo = NULL, CellType = NULL,
                         txtSize = 16, ptSize = 0.4, title = NULL,

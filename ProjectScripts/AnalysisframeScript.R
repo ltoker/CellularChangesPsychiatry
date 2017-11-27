@@ -1,18 +1,4 @@
-GenScriptPath = "/home/ltoker/Rscripts/"
-ProjScriptPath = "ProjectScripts/"
-if(!"GeneralResults" %in% list.dirs(full.names = FALSE)){
-  dir.create("GeneralResults")
-}
-GeneralResultsPath = 'GeneralResults/'
-
-source(paste0(GenScriptPath,"general_functions.R"))
-packageF("sva")
-packageF("gplots")
-packageF("scales")
-select = dplyr::select
-filter = dplyr::filter
-mutate = dplyr::mutate
-source("ProjectScripts/projectFunc.R")
+source("SetUp.R")
 
 #Reading tables
 ######################################################################################################
