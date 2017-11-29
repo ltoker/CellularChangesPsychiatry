@@ -8,17 +8,31 @@ source("SetUp.R")
 
 
 #Getting the NeuroExpresso cortical cell expression profiles
-download.file(url = "https://github.com/oganm/neuroExpressoAnalysis/blob/master/data/n_expressoSamples.rda?raw=true", destfile = "n_expressoMeta.rda")
+if(length(list.files(pattern = "n_expressoMeta.rda")) == 0){
+  download.file(url = "https://github.com/oganm/neuroExpressoAnalysis/blob/master/data/n_expressoSamples.rda?raw=true", destfile = "n_expressoMeta.rda")
+} else {
+  warning("using existing file")
+}
+
 load("n_expressoMeta.rda")
+
 #Removes samples not included in NeuroExpresso
 n_expressoSamples %<>% filter(!is.na(.$PyramidalDeep))
 
-download.file(url = "https://github.com/oganm/neuroExpressoAnalysis/blob/master/data/n_expressoExpr.rda?raw=true", destfile = "n_expressoExpr.rda")
+if(length(list.files(pattern = "n_expressoExpr.rda")) == 0){
+  download.file(url = "https://github.com/oganm/neuroExpressoAnalysis/blob/master/data/n_expressoExpr.rda?raw=true", destfile = "n_expressoExpr.rda")
+} else {
+  warning("using existing file")
+}
+
 load("n_expressoExpr.rda")
 
 
-
-download.file(url = "https://github.com/oganm/neuroExpressoAnalysis/blob/master/data/regionHierarchy.rda?raw=true", destfile = "regionHierarchy.rda")
+if(length(list.files(pattern = "regionHierarchy.rda")) == 0){
+  download.file(url = "https://github.com/oganm/neuroExpressoAnalysis/blob/master/data/regionHierarchy.rda?raw=true", destfile = "regionHierarchy.rda")
+} else {
+  warning("using existing file")
+}
 load("regionHierarchy.rda")
 
 #Scale the expression for ErmineJ analysis
@@ -47,12 +61,18 @@ NeuroExpCellsScaled2 %<>% select(Probe, Astrocyte,  Microglia, Oligodendrocyte,
 write.table(NeuroExpCellsScaled, "GeneralResults/NeuroExpCellsScaled.txt", sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
 write.table(NeuroExpCellsScaled2, "GeneralResults/NeuroExpCellsScaled2.txt", sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
 
-download.file(paste0("http://chibi.ubc.ca/microannots/", "GPL339",  "_noParents.an.txt.gz"), destfile="GPL339.gz")
+# Download annotation file
+if(length(list.files(pattern = "GPL339.gz")) == 0){
+  download.file(paste0("http://chibi.ubc.ca/microannots/", "GPL339",  "_noParents.an.txt.gz"), destfile="GPL339.gz")
+} else {
+  warning("using existing GPL file")
+}
+
 GPL339 <- read.table("GPL339.txt", header = TRUE, sep = "\t", quote = "")
 
 write.table(GPL339 %>% filter(ProbeName %in% n_expressoExpr$Probe), "NeuExprProbes.txt", sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
 
-
+# Set up functions to run ErmineJ and read the output files
 ReadErmineJ <- function(file){
   temp = readLines(file, ok = TRUE)
   DataStart <- grep("RawScore", temp)
@@ -75,28 +95,27 @@ ReadErmineJ <- function(file){
               Result = ErmineJ_DF)) 
   }
 
-scriptLoc = "~/CellularProportionsPsychiatry/ErmineJscript.sh"
-AnnoFile = "/home/ltoker/CellularProportionsPsychiatry/NeuExprProbes.txt"
-OutDir = "/home/ltoker/CellularProportionsPsychiatry/GeneralResults/"
+scriptLoc = paste0(ProjScriptPath, "ErmineJscript.sh")
+AnnoFile = "NeuExprProbes.txt"
+OutDir = GeneralResultsPath
 
 for(cell in names(NeuroExpCellsScaled)[-1]){
   #Most upregulated genes
-  ScoreFile = "/home/ltoker/CellularProportionsPsychiatry/GeneralResults/NeuroExpCellsScaled.txt"
+  ScoreFile = paste0(GeneralResultsPath, "NeuroExpCellsScaled.txt")
   ScoreCol = grep(cell, names(NeuroExpCellsScaled))
   OutFile = paste0(OutDir, "ErmineJ",cell, "PC_top.txt")
   RexExp = paste(scriptLoc, ScoreFile, ScoreCol, AnnoFile, OutFile)
   system(paste("source ~/.bashrc; ERMINEJ_HOME=$ERMINEJ_HOME; cd $HOME/$ERMINEJ_HOME;", RexExp), intern = T)
   
   #Most downregulated genes
-  ScoreFile = "/home/ltoker/CellularProportionsPsychiatry/GeneralResults/NeuroExpCellsScaled2.txt"
+  ScoreFile = paste0(GeneralResultsPath, "NeuroExpCellsScaled2.txt")
   OutFile = paste0(OutDir, "ErmineJ",cell, "PC_bottom.txt")
   RexExp = paste(scriptLoc, ScoreFile, ScoreCol, AnnoFile, OutFile)
   system(paste("source ~/.bashrc; ERMINEJ_HOME=$ERMINEJ_HOME; cd $HOME/$ERMINEJ_HOME;", RexExp), intern = T)
 }
 
 
-
-for(celltype in list.files(path = "GeneralResults/", pattern = "^ErmineJ.*PC")){
+for(celltype in list.files(path = GeneralResultsPath, pattern = "^ErmineJ.*PC")){
   temp <- ReadErmineJ(paste0(ResultsPath,celltype))
   assign(gsub(".txt", "", celltype), temp)
 }
@@ -120,18 +139,33 @@ for(celltype in ls(pat = "^ErmineJ.*top")){
     }
   }
   
-  write.table(data.frame(gsub("ErmineJ|PC_.*", "", celltype)), append = TRUE, file = "GeneralResults/ErmineJSummaryMA.tsv", sep = "\t", col.names = FALSE, row.names = FALSE)
-  write.table(temp, append = TRUE, file = "GeneralResults/ErmineJSummaryMA.tsv", sep = "\t", col.names = TRUE, row.names = FALSE)
+  write.table(data.frame(gsub("ErmineJ|PC_.*", "", celltype)), append = TRUE, file = paste0(GeneralResultsPath,"ErmineJSummaryMA.tsv"), sep = "\t", col.names = FALSE, row.names = FALSE)
+  write.table(temp, append = TRUE, file = paste0(GeneralResultsPath,"ErmineJSummaryMA.tsv"), sep = "\t", col.names = TRUE, row.names = FALSE)
 }
 
 #Repeat anaysis with Tasic data
 #Getting the NeuroExpresso cortical cell expression profiles
-download.file(url = "https://github.com/oganm/neuroExpressoAnalysis/blob/master/data/TasicMouseExp.rda?raw=true", destfile = "TasicMouseExp.rda")
+if(length(list.files(pattern = "TasicMouseExp.rda")) == 0){
+  download.file(url = "https://github.com/oganm/neuroExpressoAnalysis/blob/master/data/TasicMouseExp.rda?raw=true", destfile = "TasicMouseExp.rda")
+}  else {
+  warning("using existing file")
+}
 load("TasicMouseExp.rda")
-download.file(url = "https://github.com/oganm/neuroExpressoAnalysis/blob/master/data/TasicMouseMeta.rda?raw=true", destfile = "TasicMouseMeta.rda")
+
+if(length(list.files(pattern = "TasicMouseMeta.rda")) == 0){
+  download.file(url = "https://github.com/oganm/neuroExpressoAnalysis/blob/master/data/TasicMouseMeta.rda?raw=true", destfile = "TasicMouseMeta.rda")
+}  else {
+  warning("using existing file")
+}
 load("TasicMouseMeta.rda")
-download.file(url = "https://github.com/oganm/neuroExpressoAnalysis/blob/master/data/meltedSingleCells.rda?raw=true", destfile = "TasicNEmatch.rda")
+
+if(length(list.files(pattern = "TasicNEmatch.rda")) == 0){
+  download.file(url = "https://github.com/oganm/neuroExpressoAnalysis/blob/master/data/meltedSingleCells.rda?raw=true", destfile = "TasicNEmatch.rda")
+}  else {
+  warning("using existing file")
+}
 load("TasicNEmatch.rda")
+
 TasicMouseMeta$ShinyNames <- meltedSingleCells$ShinyNames[match(TasicMouseMeta$primary_type, meltedSingleCells$sampleName)]
 
 TasicExpScaled <- scale(TasicMouseExp %>% as.matrix %>% t) %>% t %>% data.frame()
@@ -154,11 +188,14 @@ TasicExpCellsScaled2 %<>% select(ncol(TasicExpCellsScaled2), 1:c(ncol(TasicExpCe
 write.table(TasicExpCellsScaled, "GeneralResults/TasicExpCellsScaled.txt", sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
 write.table(TasicExpCellsScaled2, "GeneralResults/TasicExpCellsScaled2.txt", sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
 
-
-
-scriptLoc = "~/CellularProportionsPsychiatry/ErmineJscript.sh"
-AnnoFile = "/home/ltoker/CellularProportionsPsychiatry/Generic_human_noParents.an.txt"
-OutDir = "/home/ltoker/CellularProportionsPsychiatry/GeneralResults/"
+if(length(list.files(pattern = "Generic_human_noParents.an.txt")) == 0){
+  download.file("http://chibi.ubc.ca/microannots/Generic_human_noParents.an.txt.gz", destfile="Generic_human_noParents.an.txt")
+} else {
+  warning("using existing GPL file")
+}
+scriptLoc = paste0(ProjScriptPath, "ErmineJscript.sh")
+AnnoFile = "Generic_human_noParents.an.txt"
+OutDir = GeneralResultsPath
 
 for(cell in names(TasicExpCellsScaled)[-1]){
   #Most upregulated genes
@@ -177,7 +214,7 @@ for(cell in names(TasicExpCellsScaled)[-1]){
 
 
 
-for(celltype in list.files(path = "GeneralResults/", pattern = "^TasicErmineJ")){
+for(celltype in list.files(path = GeneralResultsPath, pattern = "^TasicErmineJ")){
   temp <- ReadErmineJ(paste0(ResultsPath,celltype))
   assign(gsub(".txt", "", celltype), temp)
 }
@@ -199,6 +236,6 @@ for(celltype in ls(pat = "^TasicErmineJ.*top")){
     }
   }
   
-  write.table(data.frame(gsub("TasicErmineJ|PC_.*", "", celltype)), append = TRUE, file = "GeneralResults/ErmineJSummaryRNAseq.tsv", sep = "\t", col.names = FALSE, row.names = FALSE)
-  write.table(temp, append = TRUE, file = "GeneralResults/ErmineJSummaryRNAseq.tsv", sep = "\t", col.names = TRUE, row.names = FALSE)
+  write.table(data.frame(gsub("TasicErmineJ|PC_.*", "", celltype)), append = TRUE, file = paste0(GeneralResultsPath,"ErmineJSummaryRNAseq.tsv"), sep = "\t", col.names = FALSE, row.names = FALSE)
+  write.table(temp, append = TRUE, file = paste0(GeneralResultsPath,"ErmineJSummaryRNAseq.tsv"), sep = "\t", col.names = TRUE, row.names = FALSE)
 }
