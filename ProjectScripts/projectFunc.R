@@ -1,6 +1,3 @@
-packageF("pROC")
-packageF("cowplot")
-
 GetMeta <- function(StudyName, subCol, groups=TRUE){
   if(grepl("Stanley", StudyName)){
     collection = gsub("Stanley", "", StudyName)
@@ -640,40 +637,6 @@ getCerebellumAstro <- function(data){
   return(dataBoth)
 }
 
-getROC <- function(MGPcorData){
-  data <- sapply(names(MGPcorData), function(cellName){
-    celltype = MGPcorData[[cellName]]
-    cellName <- gsub("_Genes", "MGPcor", cellName)
-    sapply(names(celltype), function(grpName){
-      grp = celltype[[grpName]]
-      grp$GeneType <-  sapply(grp$GeneSymbol, function(gene){
-        if(gene %in% MistryGenesUP$GeneSymbol){
-          "MistryUP"
-        } else if(gene %in% MistryGenesDown$GeneSymbol){
-          "MistryDown"
-        } else {
-          "NonMistry"
-        }
-      }, simplify = TRUE) %>% factor
-      ROCup <- roc(GeneType~Cor, data = grp, ci=TRUE, levels = c("NonMistry", "MistryUP"),
-                   plot=FALSE, direction="<",
-                   legacy.axes=TRUE, print.auc=TRUE,
-                   xlab="FPR", ylab = "TPR",
-                   main = paste0(cellName, "(", grpName, "), ", "MistryUP"))
-      ROCdown <- roc(GeneType~Cor, data = grp, ci=TRUE, levels = c("NonMistry", "MistryDown"),
-                     plot=FALSE, direction="<",
-                     legacy.axes=TRUE, print.auc=TRUE,
-                     xlab="FPR", ylab = "TPR",
-                     main = paste0(cellName, "(", grpName, "), ", "MistryDown"))
-      list(ROCup = ROCup, ROCdown = ROCdown)
-    }, simplify=FALSE)
-  }, simplify=FALSE)
-return(data)
-}
-
-plotROC <- function(rocObj, title, xlab="FPR", ylab = "TPR", auc = TRUE){
-  
-}
 
 PlotAllStudyOneGeneMGPcor <- function(exclGRP = "MD", gene, MGPname = "GabaPV_Genes"){
   #get correlations
