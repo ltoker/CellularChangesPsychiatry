@@ -1,6 +1,9 @@
-DarmanisExp <- load("DarmanisHumanExp.rda") %>% data.frame()
+load("DarmanisHumanExp.rda")
+DarmanisExp <- DarmanisHumanExp %>% data.frame()
 DarmanisExp$GeneSymbol <- rownames(DarmanisExp)
-DarmanisMeta <- load("DarmanisHumanMeta.rda")
+
+load("DarmanisHumanMeta.rda")
+DarmanisMeta <- DarmanisHumanMeta
 
 GetHumanExp <- function(genes, markerInfo = NULL, corInfo = NULL, CellType = NULL,
                         txtSize = 16, ptSize = 0.4, title = NULL,
@@ -55,7 +58,7 @@ GetHumanExp <- function(genes, markerInfo = NULL, corInfo = NULL, CellType = NUL
           axis.text.x = element_text(size = rel(1.1), angle = 50, hjust = 1),
           legend.position = "none",
           panel.grid = element_blank()) +
-    geom_boxplot(outlier.size = NA, width=0.8) + 
+    geom_boxplot(outlier.color = NA, width=0.8) + 
     geom_jitter(width = 0.2, size = ptSize, aes(color = CellType)) +
     scale_color_manual(values = colors, name = "") +
     facet_wrap(~GeneName, scales = "free_y")
