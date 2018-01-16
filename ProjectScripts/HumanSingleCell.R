@@ -37,7 +37,7 @@ GetHumanExp <- function(genes, markerInfo = NULL, corInfo = NULL, CellType = NUL
   }
   tempGene %<>% mutate(GeneSymbol = factor(GeneSymbol, levels = genes))
   tempGene %<>% droplevels()
-  tempGene %<>% mutate(GeneName = paste0(tempGene$GeneSymbol, marker, " (rho=", Cor, ")"))
+  tempGene %<>% mutate(GeneName = paste0(tempGene$GeneSymbol, marker, " (r =", Cor, ")"))
   tempGene$GeneName <- factor(tempGene$GeneName,
                               levels = tempGene$GeneName[match(levels(tempGene$GeneSymbol),
                                                                tempGene$GeneSymbol)])
