@@ -1,6 +1,6 @@
 source("SetUp.R")
 
-load("GeneralResults/studyFinalStanleyConsortium.rda")
+load(paste0(GeneralResultsPath, "studyFinalStanleyConsortium.rda"))
 
 plotCountsMGPgroupResults <- function(data){
   ContMedian <- data %>% filter(Profile == "Cont") %>% group_by(MeasureType) %>%
