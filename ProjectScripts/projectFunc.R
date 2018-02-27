@@ -71,7 +71,6 @@ GetMeta <- function(StudyName, subCol, groups=TRUE){
       }
       write.table(Metadata, paste0(name,"/Metadata.tsv"), sep="\t", row.names=FALSE)
       }
-      
     Metadata <- read.table(paste0(name,"/Metadata.tsv"), sep="\t", header=T)
     names(Metadata)[grep("pmi|mortem", names(Metadata), ignore.case=TRUE)] <- "PMI"
     names(Metadata)[grep("ph$|tissue.ph", names(Metadata), ignore.case=TRUE)] <- "pH"
@@ -112,25 +111,21 @@ GetMeta <- function(StudyName, subCol, groups=TRUE){
   Metadata <- GetCommonName(Metadata,char=c("age", "sex", "PMI", "ph"))
   OrgRegion <- grep("(tissue|region|brain.?region)", names(Metadata),ignore.case = TRUE, value = T)
   if(length(OrgRegion) == 0){
+    browser()
     print("No brain region specified, modify Metadata file")
+  } else if(length(OrgRegion) > 1) {
+    print(paste0("Multiple columns define region (", paste0(OrgRegion, collapse = ","), ") , modify Metadata file and OrgRegion object"))
+    browser()
   }
-  
-  if(length(OrgRegion) > 1) {
-    print("Multiple columns define region, modify Metadata file")
-    OrgRegion <- grep("(tissue$|region|brain.?region)", names(Metadata),ignore.case = TRUE, value = T)
-    if(length(OrgRegion == 0)){
-      print("No columns matches tissue description")
-    } else if(length(OrgRegion > 1)){
-      print("more than one column matched tissue description, check out the Metadata file")
-    }
-  }
-  Metadata$NeuExpRegion = Metadata %>%
+
+  Metadata$OrgRegion <- Metadata %>%
     select_(.dots = OrgRegion) %>% unlist
+  Metadata %<>% mutate(NeuExpRegion = OrgRegion)
   
   Metadata$NeuExpRegion <- sapply(Metadata$NeuExpRegion, function(x) {
     if (grepl("cerebe",tolower(x))){
       "Cerebellum"
-    } else if (grepl("cortex|pfc|dlpfc|frontalba|^ba|gyrus",tolower(x))){
+    } else if (grepl("cortex|pfc|dlpfc|frontalba|^ba|gyrus|^an?cc$|^an?cg$",tolower(x))){
       "Cortex"
     } else if (grepl("hippocampus|hip|hpc",tolower(x))){
       "Hippocampus"
@@ -164,7 +159,7 @@ GetMeta <- function(StudyName, subCol, groups=TRUE){
     RepName <- sapply(as.character(unique(DF$CommonName)), function(SampName){
       names <- subMeta %>% filter(CommonName == SampName) %>% select(Series_sample_id, CommonName)
       cbind(as.character(names$Series_sample_id), paste0(unique(names$CommonName), "rep",seq(1:nrow(names))))
-    }, simplify=TRUE) %>% do.call(rbind, .) %>% data.frame()
+    }, simplify=FALSE) %>% do.call(rbind, .) %>% data.frame()
     DF$RepName <- RepName$X2[match(DF$Series_sample_id, RepName$X1)]
     DF
   }, simplify=FALSE)
@@ -252,8 +247,8 @@ PreProcces <- function(eSet, study=NULL){
   return(output)
 }
 
-datasGenerate <- function(genes){
-  datas <- lapply(sapply(names(studyFinal), function(s) studyFinal[[s]]$aned_good,
+datasGenerate <- function(genes, exp = "aned_good"){
+  datas <- lapply(sapply(names(studyFinal), function(s) studyFinal[[s]][[exp]],
                          simplify=FALSE),
                   function(x) subset(x, GeneSymbol %in% genes & Probe != "243712_at"))
     
@@ -293,13 +288,15 @@ HeatMapGen <- function(datas, Meta, path=NULL, save = 1){
         switch(as.character(x),
                "XIST" = "darkred",
                "KDM5D" = "blue",
-               "RPS4Y1|RPS4Y2" = "darkblue")
+               "RPS4Y1|RPS4Y2" = "darkblue",
+               "RPS4Y1" = "darkblue")
       })
       Row_col <- sapply(Row_col, function(x){
         switch(x,
                "XIST" = "darkred",
                "KDM5D" = "blue",
-               "RPS4Y1|RPS4Y2" = "darkblue")
+               "RPS4Y1|RPS4Y2" = "darkblue",
+               "RPS4Y1" = "darkblue")
       })
       
       Row_col <- t(as.matrix(Row_col))
@@ -350,6 +347,7 @@ HeatMapGen <- function(datas, Meta, path=NULL, save = 1){
 HeatMapGen2 <- function(datas, Meta, missmatched, path=NULL, save = 1){
   if(length(names(datas)) >1){
     Combined <- lapply(datas, function(x) {
+      rownames(x) <- x$Probe
       data <- t(x[sapply(x[1,], function(y) is.numeric(y))]) 
       values <- data.frame(row.names=Meta$CommonName)
       values[,1:ncol(data)] <- NA 
@@ -362,7 +360,6 @@ HeatMapGen2 <- function(datas, Meta, missmatched, path=NULL, save = 1){
       Probes
     })
     
-
     AllData <- do.call(cbind, args=Combined)
     
     #Add region/study to colnames in case it is not there already
@@ -382,7 +379,7 @@ HeatMapGen2 <- function(datas, Meta, missmatched, path=NULL, save = 1){
     AllFeatures <- unique(do.call(rbind, args=Features))
     MetaSex = as.character(Meta$Sex[match(rownames(AllData), Meta$CommonName)])
     MetaSex[MetaSex == "F"] <- "deeppink" ; MetaSex[MetaSex == "M"] <- "darkslateblue"
-    Probe_col <-  sapply(names(AllData), function(x) strsplit(x, "\\.")[[1]][2])
+    Probe_col <-  sapply(names(AllData), function(x) strsplit(as.character(x), "\\.")[[1]][2])
     Probe_col <- as.character(AllFeatures$GeneSymbol[match(Probe_col, AllFeatures$Probe)])
     AllSexGen <- data.frame(gene = unique(Probe_col))
     AllSexGen$sex <- sapply(unique(Probe_col), function(gene){
@@ -398,14 +395,16 @@ HeatMapGen2 <- function(datas, Meta, missmatched, path=NULL, save = 1){
       switch(as.character(x),
              "XIST" = "darkred",
              "KDM5D" = "blue",
-             "RPS4Y1|RPS4Y2" = "darkblue")
+             "RPS4Y1|RPS4Y2" = "darkblue",
+             "RPS4Y1" = "darkblue")
     })
     
     Probe_col <- sapply(Probe_col, function(x){
       switch(x,
              "XIST" = "darkred",
              "KDM5D" = "blue",
-             "RPS4Y1|RPS4Y2" = "darkblue")
+             "RPS4Y1|RPS4Y2" = "darkblue",
+             "RPS4Y1" = "darkblue")
     })
     
     Study <- sapply(colnames(AllData), function(x)

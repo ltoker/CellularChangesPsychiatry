@@ -142,7 +142,7 @@ missmatched <- lapply(studyFinal, function(x){
 
 rm(list=ls(pat="exp"))
 #Create gender HeatMaps
-datas <- datasGenerate(c("XIST", "KDM5D", "RPS4Y1|RPS4Y2"))
+datas <- datasGenerate(c("XIST", "KDM5D", "RPS4Y1|RPS4Y2", "RPS4Y1"))
 
 
 HeatMapGen(datas=datas, Meta=Metadata[!duplicated(Metadata$CommonName),], path = resultsPath,  save=1)
@@ -173,7 +173,7 @@ PCA_results <- sapply(names(studyFinal), function(x){
   MinGrp <- round(0.9*min(groups))
   AllSamples <- sapply(names(groups), function(grp){
     grep(grp, names(aned_high), value = T)
-  })
+  }, simplify = FALSE)
   results <- list()
   for(i in c(1:100)){
     BootSamples <- lapply(AllSamples, function(grp){

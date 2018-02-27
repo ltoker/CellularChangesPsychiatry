@@ -87,6 +87,8 @@ GetLM <- function(data, celltype, group){
   lm1a <- lmer(as.formula(paste0(celltype, "~Sex + (1|Study) + (1|SubjectID)")), data = data , REML = FALSE)
   lm1b <- lmer(as.formula(paste0(celltype, "~Age + (1|Study) + (1|SubjectID)")), data = data , REML = FALSE)
   lm1c <- lmer(as.formula(paste0(celltype, "~pH + (1|Study) + (1|SubjectID)")), data = data , REML = FALSE)
+  lm1d <- lmer(as.formula(paste0(celltype, "~PMI + (1|Study) + (1|SubjectID)")), data = data , REML = FALSE)
+  
   covarEff = "(1|Study) + (1|SubjectID)"
   if (anova(lm0, lm1a)$`Pr(>Chisq)`[2] < 0.05 ) {
     covarEff <- paste0("Sex + ", covarEff)
@@ -97,18 +99,22 @@ GetLM <- function(data, celltype, group){
   if (anova(lm0, lm1c)$`Pr(>Chisq)`[2] < 0.05) {
     covarEff <- paste0("pH +", covarEff)
   }
+  if (anova(lm0, lm1d)$`Pr(>Chisq)`[2] < 0.05) {
+    covarEff <- paste0("PMI +", covarEff)
+  }
+  
   lm2 <- lmer(as.formula(paste0(celltype,"~", covarEff)), data = data, REML = FALSE)
   lm2ast <- lmer(as.formula(paste0(celltype,"~ Astrocyte_Genes + ", covarEff)), data = data, REML = FALSE)
   lm2PV <- lmer(as.formula(paste0(celltype,"~ GabaPV_Genes + ", covarEff)), data = data, REML = FALSE)
-  lm2b <- lmer(as.formula(paste0(celltype, "~Sex + Age + pH + (1|Study) + (1|SubjectID)")), data = data , REML = FALSE)
-  lm2bast <- lmer(as.formula(paste0(celltype, "~Sex + Age + pH + Astrocyte_Genes + (1|Study) + (1|SubjectID)")), data = data , REML = FALSE)
-  lm2bPV <- lmer(as.formula(paste0(celltype, "~Sex + Age + pH + GabaPV_Genes + (1|Study) + (1|SubjectID)")), data = data , REML = FALSE)
+  lm2b <- lmer(as.formula(paste0(celltype, "~Sex + Age + pH + PMI + (1|Study) + (1|SubjectID)")), data = data , REML = FALSE)
+  lm2bast <- lmer(as.formula(paste0(celltype, "~Sex + Age + pH + PMI + Astrocyte_Genes + (1|Study) + (1|SubjectID)")), data = data , REML = FALSE)
+  lm2bPV <- lmer(as.formula(paste0(celltype, "~Sex + Age + pH + PMI + GabaPV_Genes + (1|Study) + (1|SubjectID)")), data = data , REML = FALSE)
   lm3 <- lmer(as.formula(paste0(celltype, "~Profile +", covarEff)), data = data, REML = FALSE)
   lm3ast <- lmer(as.formula(paste0(celltype, "~Profile + Astrocyte_Genes + ", covarEff)), data = data, REML = FALSE)
   lm3PV <- lmer(as.formula(paste0(celltype, "~Profile + GabaPV_Genes + ", covarEff)), data = data, REML = FALSE)
-  lm3b <- lmer(as.formula(paste0(celltype, "~Profile + Sex + Age + pH + (1|Study) + (1|SubjectID)")), data = data, REML = FALSE)
-  lm3bast <- lmer(as.formula(paste0(celltype, "~Profile + Sex + Age + pH + Astrocyte_Genes + (1|Study) + (1|SubjectID)")), data = data, REML = FALSE)
-  lm3bPV <- lmer(as.formula(paste0(celltype, "~Profile + Sex + Age + pH + GabaPV_Genes + (1|Study) + (1|SubjectID)")), data = data, REML = FALSE)
+  lm3b <- lmer(as.formula(paste0(celltype, "~Profile + Sex + Age + pH + PMI +  (1|Study) + (1|SubjectID)")), data = data, REML = FALSE)
+  lm3bast <- lmer(as.formula(paste0(celltype, "~Profile + Sex + Age + pH + PMI + Astrocyte_Genes + (1|Study) + (1|SubjectID)")), data = data, REML = FALSE)
+  lm3bPV <- lmer(as.formula(paste0(celltype, "~Profile + Sex + Age + pH + PMI +GabaPV_Genes + (1|Study) + (1|SubjectID)")), data = data, REML = FALSE)
   return(list(lm0 = lm0,
               lm1a = lm1a,
               lm1b = lm1b,
@@ -245,7 +251,7 @@ MetadataAllStanley$Profile <- sapply(MetadataAllStanley$Profile, function(x) {
 MetadataAllStanley$CharVec2 <- apply(MetadataAllStanley %>% select(Sex, BrainPH, PMIh, Profile), 1, function(x) paste0(x, collapse="_"))
 
 StanleyGSE35978 <- new.env()
-load("GeneralResults/studyFinalGSE35978.rda", envir = StanleyGSE35978)
+load(paste0(GeneralResultsPath, "/studyFinalGSE35978.rda"), envir = StanleyGSE35978)
 studyFinalGSE35978 <- get("studyFinal", envir = StanleyGSE35978)
 
 studyFinalGSE35978$Cortex$Metadata$CharVec <- apply(studyFinalGSE35978$Cortex$Metadata %>% select(Sex, pH, PMI, Profile), 1, function(x) paste0(x, collapse="_"))
@@ -261,20 +267,20 @@ rm(MetadataAllStanley)
 
 
 StanleyArray <- new.env()
-load("GeneralResults/studyFinalStanleyArray.rda", envir = StanleyArray)
+load(paste0(GeneralResultsPath, "/studyFinalStanleyArray.rda"), envir = StanleyArray)
 studyFinalSA <- get("studyFinal", envir = StanleyArray)
 
 StanleyConsort <- new.env()
-load("GeneralResults/studyFinalStanleyConsortium.rda", envir = StanleyConsort)
+load(paste0(GeneralResultsPath, "/studyFinalStanleyConsortium.rda"), envir = StanleyConsort)
 studyFinalSC <- get("studyFinal", envir = StanleyConsort)
 
 McLeanCortex <- new.env()
-load("GeneralResults/studyFinalMcLeanCortex.rda", envir = McLeanCortex)
+load(paste0(GeneralResultsPath, "/studyFinalMcLeanCortex.rda"), envir = McLeanCortex)
 studyFinalMcLean <- get("studyFinal", envir = McLeanCortex)
 studyFinalMcLean$Cortex$Metadata$CollectionType <- "McLean66" %>% factor
 
 GSE53987 <- new.env()
-load("GeneralResults/studyFinalGSE53987.rda", envir = GSE53987)
+load(paste0(GeneralResultsPath, "/studyFinalGSE53987.rda"), envir = GSE53987)
 studyFinalGSE53987 <- get("studyFinal", envir = GSE53987)
 studyFinalGSE53987 <- lapply(studyFinalGSE53987, function(region){
   region$Metadata$CollectionType <- "Pittsburgh" %>% factor
@@ -282,7 +288,7 @@ studyFinalGSE53987 <- lapply(studyFinalGSE53987, function(region){
 })
 
 GSE21138 <- new.env()
-load("GeneralResults/studyFinalGSE21138.rda", envir = GSE21138)
+load(paste0(GeneralResultsPath, "/studyFinalGSE21138.rda"), envir = GSE21138)
 studyFinalGSE21138 <- get("studyFinal", envir = GSE21138)
 studyFinalGSE21138$Cortex$Metadata$CollectionType <- "VBBN" %>% factor
 
@@ -310,15 +316,31 @@ for(meta in ls(pat = "Metadata")){
   assign(meta, metaData)
 }
 
-rm(list = ls(pat = "studyFinal"))
+#rm(list = ls(pat = "studyFinal"))
 
 metaCombined <- sapply(ls(pat = "Metadata"), function(studyMeta){
-  meta <- eval(as.name(studyMeta)) %>% select(matches("CommonName|SubjectID|Profile|BioGender|age$|_Genes|ph$|CollectionType", ignore.case = TRUE))
+  meta <- eval(as.name(studyMeta)) %>% select(matches("CommonName|SubjectID|Profile|BioGender|age$|_Genes|ph$|CollectionType|pmi$|rin$", ignore.case = TRUE))
   names(meta)[grepl("BioGender", names(meta), ignore.case = TRUE)] <- "Sex"
   names(meta)[grepl("age", names(meta), ignore.case = TRUE)] <- "Age"
   names(meta)[grepl("ph$", names(meta), ignore.case = TRUE)] <- "pH"
+  if(sum(grepl("pmi$", names(meta), ignore.case = TRUE)) == 1){
+    names(meta)[grepl("pmi$", names(meta), ignore.case = TRUE)] <- "PMI"
+  } else if(sum(grepl("pmi$", names(meta), ignore.case = TRUE)) > 1){
+    warning("more than one column matches the regex for pmi")
+  } else {
+    meta$PMI <- NA
+  }
+  
+  if(sum(grepl("rin$", names(meta), ignore.case = TRUE)) == 1){
+    names(meta)[grepl("rin$", names(meta), ignore.case = TRUE)] <- "RIN"
+  } else if(sum(grepl("rin$", names(meta), ignore.case = TRUE)) > 1){
+    warning("more than one column matches the regex for rin")
+  } else {
+    meta$RIN <- NA
+  }
   meta$Study <- gsub("Metadata", "", studyMeta) %>% factor
-  meta %<>% select(CommonName, Profile, Age, pH, Sex, SubjectID, Study, CollectionType, matches("_Genes"))
+  
+  meta %<>% select(CommonName, Profile, Age, pH, Sex, PMI, RIN, SubjectID, Study, CollectionType, matches("_Genes"))
   meta
 }, simplify = FALSE) %>% do.call(rbind, .) %>% droplevels()
 
@@ -352,6 +374,23 @@ metaCombined$Study2 <-sapply(metaCombined$Study, function(study){
 })
 
 metaCombined$Study2 <- paste0(metaCombined$Study, " (", metaCombined$Study2, ")")
+metaCombined$SubjStudy <- apply(metaCombined %>% select(CommonName, Study), 1, function(x) paste0(x, collapse = "."))
+
+ExpAll <- list()
+for(study in ls(pat = "studyFinal.*")){
+  if(grepl("SA|SC", study)){
+    temp = eval(as.name(study))
+    CrtxDS = names(temp)[names(temp) %in% levels(metaCombined$Study)] 
+    for(dataset in CrtxDS){
+      ExpAll[[dataset]] <- temp[[dataset]]$aned_high
+    }
+  } else {
+    temp = eval(as.name(study))
+    ExpAll[[gsub("studyFinal", "", study)]] <-  temp$Cortex$aned_high
+  }
+}
+
+save(ExpAll, metaCombined, file = paste0(GeneralResultsPath, "DataCombined.rda"))
 
 lmResultsBP <- sapply(grep("_Genes", names(metaCombined), value = TRUE), function(celltype){
   GetLM(metaCombined, celltype, "BP")
@@ -459,7 +498,7 @@ EstimatePlot <- ggplot(EstimateDeltaCellMelt, aes(CellType, Study2)) +
                                                max(abs(c(EstimateDeltaCellMelt$Estimate)), na.rm=TRUE)),
                        name = "Effect") +
   geom_text(aes(label=Star), color="black", size=7) 
-ggsave("GeneralResults/EstimatePlot.pdf", plot = EstimatePlot, width = 12, height = 6, units = "in",
+ggsave("GeneralResults/EstimatePlotPMI.pdf", plot = EstimatePlot, width = 12, height = 6, units = "in",
        dpi=300)
 
 #Plot violin plotsof individual studies
@@ -495,17 +534,17 @@ ResultsSummaryPV <-GetResultSummary(CIdata = AllresultsCIpv, CellTypes = unique(
                                      Effects = c("ProfileSCZ","ProfileBP"), CellTypeRM2 = c(CellTypeRM2, "GabaPV"))
 
 ResultsSummaryFull <- GetResultSummary(CIdata = AllresultsCIb, CellTypes = unique(EstimateDeltaCell$CellType),
-                               Effects = c("pH", "Age", "SexM", "ProfileSCZ","ProfileBP"), CellTypeRM2 = CellTypeRM2)
+                               Effects = c("pH", "PMI", "Age", "SexM",  "ProfileSCZ","ProfileBP"), CellTypeRM2 = CellTypeRM2)
 
 ResultsSummaryAstFull <-GetResultSummary(CIdata = AllresultsCIastb, CellTypes = unique(EstimateDeltaCell$CellType),
-                                 Effects = c("pH", "Age", "SexM", "ProfileSCZ","ProfileBP"), CellTypeRM2 = c(CellTypeRM2, "Astrocyte"))
+                                 Effects = c("pH", "PMI", "Age", "SexM", "ProfileSCZ","ProfileBP"), CellTypeRM2 = c(CellTypeRM2, "Astrocyte"))
 ResultsSummaryPVFull <-GetResultSummary(CIdata = AllresultsCIpvb, CellTypes = unique(EstimateDeltaCell$CellType),
-                                         Effects = c("pH", "Age", "SexM", "ProfileSCZ","ProfileBP"), CellTypeRM2 = c(CellTypeRM2, "GabaPV"))
+                                         Effects = c("pH", "PMI", "Age", "SexM", "ProfileSCZ","ProfileBP"), CellTypeRM2 = c(CellTypeRM2, "GabaPV"))
 
 #Modify tables for plotting
 for(ResultSum in ls(pat = "^ResultsSummary")){
   temp <- melt(data.table(eval(as.name(ResultSum)) %>% droplevels()), id.vars = "CellType",
-               measure.vars = patterns("BP$|SCZ$|^pH$|Age$|SexM$", "min$", "max$",
+               measure.vars = patterns("BP$|SCZ$|^pH$|PMI$|Age$|SexM$", "min$", "max$",
                                        cols = as.character(names(eval(as.name(ResultSum))))),
                variable.name = "Effect", variable.factor = FALSE,
                value.name = c("Coefficient", "Min", "Max")) %>% data.frame
@@ -552,12 +591,12 @@ EstimateCIcombinedPlot <- ggplot(CombinedResultsSummary, aes(x=CellType, y=Coeff
   geom_point() +
   geom_errorbar(aes(ymin = Min, ymax = Max), na.rm = TRUE) +
   geom_abline(intercept = 0, slope = 0, color = "red", linetype="dashed")
-ggsave("GeneralResults/EstimateCIcombinedPlot.pdf", plot = EstimateCIcombinedPlot, width = 10, height = 6, units = "in",
+ggsave("GeneralResults/EstimateCIcombinedPlotWithPMI.pdf", plot = EstimateCIcombinedPlot, width = 10, height = 6, units = "in",
        dpi=300, useDingbats = FALSE)
 
-EstimateCIFullPlot <- plotCI(data = ResultsSummaryFullMelt %>% filter(Effect %in% c("pH", "Age", "SexM")), title = "Covariate effect (95%CI)",
-                             rowNum = 3, scales = "free_y", color_x = FALSE)
-ggsave("GeneralResults/EstimateCIFullPlot.pdf", plot = EstimateCIFullPlot, width = 10, height = 10, units = "in",
+EstimateCIFullPlot <- plotCI(data = ResultsSummaryFullMelt %>% filter(Effect %in% c("pH", "PMI", "Age", "SexM")), title = "Covariate effect (95%CI)",
+                             rowNum = 2, scales = "free_y", color_x = FALSE)
+ggsave("GeneralResults/EstimateCIFullPlotPMI.pdf", plot = EstimateCIFullPlot, width = 10, height = 10, units = "in",
        dpi=300, useDingbats = FALSE)
 
 # lmer CI plot for Astrocyte MGP only
@@ -596,15 +635,34 @@ EstimateCIGabaPVOnlyPlot <- ggplot(ResultsSummaryMelt %>% filter(CellType %in% c
 ggsave("GeneralResults/EstimateCIGabaPVOnlyPlot.pdf", plot = EstimateCIGabaPVOnlyPlot, width = 6, height = 3, units = "in",
        dpi=300, useDingbats = FALSE)
 
-ResultTableCovariates <- ResultsSummaryFull %>% select(matches("CellType|pH|Age|SexM")) %>% .[complete.cases(.),]
+ResultTableCovariates <- ResultsSummaryFull %>% select(matches("CellType|pH|PMI|Age|SexM")) %>% .[complete.cases(.),]
 ResultTableCovariates[-1] <- apply(ResultTableCovariates[-1], c(1,2), function(x) signif(x,digits=1)) 
 ResultTableCovariates %<>% mutate("pH (95%CI)" = paste0(pH, " (", pHmin, ",", pHmax, ")"),
                                   "Age (95%CI)" = paste0(Age, " (", Agemin, ",", Agemax, ")"),
-                                  "SexM (95%CI)" = paste0(pH, " (", SexMmin, ",", SexMmax, ")"))
+                                  "SexM (95%CI)" = paste0(pH, " (", SexMmin, ",", SexMmax, ")"),
+                                  "pH (95%CI)" = paste0(pH, " (", pHmin, ",", pHmax, ")"),
+                                  "Age (95%CI)" = paste0(Age, " (", Agemin, ",", Agemax, ")"),
+                                  "PMI (95%CI)" = paste0(PMI, " (", PMImin, ",", PMImax, ")"))
 
-ResultTableCovariates %<>% select(matches("CellType|pH |Age |SexM ")) %>% droplevels
+ResultTableCovariates %<>% select(matches("CellType|pH |PMI |Age |SexM ")) %>% droplevels
 ResultTableCovariates <- ResultTableCovariates[match(levels(ResultTableCovariates$CellType),
                                                      ResultTableCovariates$CellType),] 
-write.table(ResultTableCovariates, "GeneralResults/ResultTableCovariates.tsv", sep = "\t", row.names = FALSE, col.names = TRUE)
+write.table(ResultTableCovariates, "GeneralResults/ResultTableCovariatesPMI.tsv", sep = "\t", row.names = FALSE, col.names = TRUE)
 
 save.image("GeneralResults/CombinedStudies.Rdata")
+
+#lm including RIN for GSE53987 for astrocyte and GabaPV cells
+dataGSE53987 <- metaCombined %>% filter(Study == "GSE53987") %>% droplevels
+lm1Astro <- lm(Astrocyte_Genes~Profile + pH + Age + Sex + PMI + RIN, data = dataGSE53987) %>% summary
+lm2Astro <- lm(Astrocyte_Genes~Profile + pH + Age + Sex + PMI, data = dataGSE53987) %>% summary
+lm1GabaPV <- lm(GabaPV_Genes~Profile + pH + Age + Sex + PMI + RIN, data = dataGSE53987) %>% summary
+lm2GabaPV <- lm(GabaPV_Genes~Profile + pH + Age + Sex + PMI, data = dataGSE53987) %>% summary
+
+write.table(lm1Astro$coefficients, file = paste0(GeneralResultsPath, "/lmGSE53987AstroMod1.tsv"), sep = "\t",
+            row.names = TRUE, col.names = TRUE)
+write.table(lm2Astro$coefficients, file = paste0(GeneralResultsPath, "/lmGSE53987AstroMod2.tsv"), sep = "\t",
+            row.names = TRUE, col.names = TRUE)
+write.table(lm1GabaPV$coefficients, file = paste0(GeneralResultsPath, "/lmGSE53987GabaPVMod1.tsv"), sep = "\t",
+            row.names = TRUE, col.names = TRUE)
+write.table(lm2GabaPV$coefficients, file = paste0(GeneralResultsPath, "/lmGSE53987GabaPVMod2.tsv"), sep = "\t",
+            row.names = TRUE, col.names = TRUE)
