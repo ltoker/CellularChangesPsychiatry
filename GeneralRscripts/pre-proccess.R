@@ -1,6 +1,7 @@
 source(paste0(GenScriptPath,"graphic_functions.R")) #networks and heatmaps
 source(paste0(GenScriptPath,"correlation_functions.R")) #corrlations and distributions functions
 
+
 Metadata %<>% droplevels()
 if(length(ls(pat="resultsPath", envir = .GlobalEnv)) == 0){
   print("No results path specified, using working directory")
@@ -33,7 +34,6 @@ if(length(c(Fgene, Mgene)) > 0){
       select_(.dots=GeneGender %>% filter(BioGender == gender) %>% .$CommonName %>% as.character)  %>% unlist
     #quantile(temp, 0.9)
   })  %>% unlist
-  
   MaxNoise <- quantile(Noise, 0.95)
 } else {
   MaxNoise = 6

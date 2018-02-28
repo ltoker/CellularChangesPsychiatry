@@ -58,7 +58,7 @@ z_scores_ALL_genes <- function(samples, signals, what_data){
 }
 
 MOD_z_scores_ALL_genes <- function(samples, signals, what_data){
-  try_genes <- data.frame(do.call("rbind", by(signals[,samples], signals$GeneSymbol, colMeans)))
+  try_genes <- signals[samples]
   median_expression <- apply(try_genes, 1, median)
   MAD <- apply(try_genes, 1, function(x) mad(x, center = median(x), constant = 1.4826))
   try_genes_MAD <- matrix(nrow=nrow(try_genes),ncol=ncol(try_genes)) 
@@ -67,6 +67,8 @@ MOD_z_scores_ALL_genes <- function(samples, signals, what_data){
   }
   colnames(try_genes_MAD)<-colnames(try_genes)
   rownames(try_genes_MAD)<-rownames(try_genes)
+  #remove genes with median of 0
+  try_genes_MAD <- try_genes_MAD[!MAD == 0, ]
   my_palette <- colorRampPalette(c("#123766", "#FFF5D4","#7D0D19"))(n = 999)
   png(paste(what_data, "png", sep="."), width = 980, height = 700, units = "px",  bg = "white")
   heatmap.2(try_genes_MAD, Rowv=T, Colv=T, dendrogram="both", hclustfun= function(x) hclust(x, method="ward.D2"), trace="none", density.info="none", 
