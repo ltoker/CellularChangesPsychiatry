@@ -29,6 +29,8 @@ Metadata %<>% filter(Profile != "MD")
 #Remove brain regions not represented in NeuroExpresso
 
 Metadata <- Metadata[!is.na(Metadata$NeuExpRegion),] %>% droplevels()
+Metadata %<>% mutate(Filename = Series_sample_id,
+                     Study = name)
 
 RegionData <- sapply(levels(Metadata$OrgRegion), function(region){
   subMeta = Metadata %>% filter(OrgRegion == region)

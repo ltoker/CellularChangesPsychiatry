@@ -67,7 +67,11 @@ GetHumanExp <- function(genes, markerInfo = NULL, corInfo = NULL, CellType = NUL
 
 
 MouseGenesProp <- function(genes, MGPused, ExpData = DarmanisExp, MetaData = DarmanisMeta,
-                           ExcludeCell = c("hybrid", "fetal_quiescent","fetal_replicating")){
+                           ExcludeCell = c("hybrid", "fetal_quiescent","fetal_replicating"),
+                           cellOrder = c("astrocytes", "endothelial",
+                                         "microglia", "oligodendrocytes",
+                                         "OPC", "neurons"),
+                           cellColor = c("red", "orange", "grey", "green", "darkgreen", "blue")){
   genes = toupper(genes)
   #this part is here because of Gemma annotations
   genes <- sapply(genes, function(x) strsplit(x, "\\.")[[1]][1])
@@ -75,7 +79,7 @@ MouseGenesProp <- function(genes, MGPused, ExpData = DarmanisExp, MetaData = Dar
   tempGene %<>% mutate(GeneSymbol = factor(GeneSymbol, levels = genes)) %>% droplevels()
   tempGeneMelt <- melt(tempGene, id.vars = c("GeneSymbol"), variable.name = "GSM", value.name = "Expression")
   tempGeneMelt$CellType <- MetaData$cellType[match(tempGeneMelt$GSM, MetaData$GSM)]
-  tempGeneMelt %<>% filter(!CellType %in% c("hybrid", "fetal_quiescent","fetal_replicating"))
+  tempGeneMelt %<>% filter(!CellType %in% ExcludeCell)
 
   tempGeneMelt %<>% mutate(Expression = log2(Expression + 1))
   tempGeneMelt$IsExpressed <- "NO"
@@ -103,15 +107,13 @@ MouseGenesProp <- function(genes, MGPused, ExpData = DarmanisExp, MetaData = Dar
   CellExpr$MGPused <- "NO"
   CellExpr$MGPused[which(CellExpr$GeneSymbol %in% MGPused)] <- "YES"
   CellExpr$MGPused <- factor(CellExpr$MGPused, levels = c("YES", "NO"))
-  CellExpr$CellType <- factor(CellExpr$CellType, levels = c("astrocytes", "endothelial",
-                                                             "microglia", "oligodendrocytes",
-                                                             "OPC", "neurons"))
+  CellExpr$CellType <- factor(CellExpr$CellType, levels = cellOrder)
   
   p <- ggplot(CellExpr, aes(CellType, PropExp)) +
     theme(axis.text.x = element_blank(),
           legend.position = "none") +
     geom_boxplot(outlier.shape = NA, aes(fill = CellType), alpha = 0.8) +
-    scale_fill_manual(values = c("red", "orange", "grey", "green", "darkgreen", "blue")) +
+    scale_fill_manual(values = cellColor) +
     geom_jitter(size = 0.5, alpha = 0.2, width = 0.2) + facet_wrap(~MGPused)
   
   p2 <- ggplot(CellExpr, aes(CellType, MedianExp)) +
@@ -119,7 +121,7 @@ MouseGenesProp <- function(genes, MGPused, ExpData = DarmanisExp, MetaData = Dar
           legend.position = "none") +
     labs(y = "Median expression (log2(fpkm + 1))") + 
     geom_boxplot(outlier.shape = NA, aes(fill = CellType), alpha = 0.8) +
-    scale_fill_manual(values = c("red", "orange", "grey", "green", "darkgreen", "blue")) +
+    scale_fill_manual(values = cellColor) +
     geom_jitter(size = 0.5, alpha = 0.2, width = 0.2) + facet_wrap(~MGPused)
   
   #Normalize the expression 0-1 for heatmap
@@ -153,9 +155,8 @@ MouseGenesProp <- function(genes, MGPused, ExpData = DarmanisExp, MetaData = Dar
   ann_column = data.frame(CellType = factor(MetaData$cellType[match(colnames(ExpMatrixNorm), DarmanisMeta$GSM)]))
   rownames(ann_column) <- colnames(ExpMatrixNorm)
   ann_colors = list(
-    CellType = c(astrocytes = "red", endothelial = "orange",
-                 microglia = "grey", oligodendrocytes = "green",
-                 OPC = "darkgreen", neurons = "blue"))
+    CellType = cellColor)
+  names(ann_colors$CellType) <- cellOrder
   PheatData <- list(Mat = ExpMatrixNorm,
                     ann_column = ann_column,
                     ann_colors = ann_colors)
