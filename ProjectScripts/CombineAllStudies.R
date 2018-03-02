@@ -83,11 +83,12 @@ PlotSingleStudy <- function(data, celltype, txtSize = 14, pvalSize = 10, lineCol
 
 GetLM <- function(data, celltype, group){
   data %<>% filter(Profile %in% c("Cont", group))
-  lm0 <- lmer(as.formula(paste0(celltype, "~1 + (1|Study) + (1|SubjectID)")), data = data, REML = FALSE)
-  lm1a <- lmer(as.formula(paste0(celltype, "~Sex + (1|Study) + (1|SubjectID)")), data = data , REML = FALSE)
-  lm1b <- lmer(as.formula(paste0(celltype, "~Age + (1|Study) + (1|SubjectID)")), data = data , REML = FALSE)
-  lm1c <- lmer(as.formula(paste0(celltype, "~pH + (1|Study) + (1|SubjectID)")), data = data , REML = FALSE)
-  lm1d <- lmer(as.formula(paste0(celltype, "~PMI + (1|Study) + (1|SubjectID)")), data = data , REML = FALSE)
+  data2 <- data[!is.na(data$pH),]
+  lm0 <- lmer(as.formula(paste0(celltype, "~1 + (1|Study) + (1|SubjectID)")), data = data2, REML = FALSE)
+  lm1a <- lmer(as.formula(paste0(celltype, "~Sex + (1|Study) + (1|SubjectID)")), data = data2 , REML = FALSE)
+  lm1b <- lmer(as.formula(paste0(celltype, "~Age + (1|Study) + (1|SubjectID)")), data = data2 , REML = FALSE)
+  lm1c <- lmer(as.formula(paste0(celltype, "~pH + (1|Study) + (1|SubjectID)")), data = data2 , REML = FALSE)
+  lm1d <- lmer(as.formula(paste0(celltype, "~PMI + (1|Study) + (1|SubjectID)")), data = data2 , REML = FALSE)
   
   covarEff = "(1|Study) + (1|SubjectID)"
   if (anova(lm0, lm1a)$`Pr(>Chisq)`[2] < 0.05 ) {
@@ -250,9 +251,13 @@ MetadataAllStanley$Profile <- sapply(MetadataAllStanley$Profile, function(x) {
 
 MetadataAllStanley$CharVec2 <- apply(MetadataAllStanley %>% select(Sex, BrainPH, PMIh, Profile), 1, function(x) paste0(x, collapse="_"))
 
-StanleyGSE35978 <- new.env()
-load(paste0(GeneralResultsPath, "/studyFinalGSE35978.rda"), envir = StanleyGSE35978)
-studyFinalGSE35978 <- get("studyFinal", envir = StanleyGSE35978)
+
+load("AnalysisStudies.rda")
+
+for(study in AnalysisStudies){
+  load(paste0(GeneralResultsPath, "/studyFinal", study, ".rda"))
+  assign(paste0("studyFinal", study), studyFinal)
+}
 
 studyFinalGSE35978$Cortex$Metadata$CharVec <- apply(studyFinalGSE35978$Cortex$Metadata %>% select(Sex, pH, PMI, Profile), 1, function(x) paste0(x, collapse="_"))
 
@@ -265,46 +270,30 @@ studyFinalGSE35978$Cortex$Metadata <- cbind(studyFinalGSE35978$Cortex$Metadata,M
                                               c("CharVec2","StanleyID", "CollectionType")])
 rm(MetadataAllStanley)
 
+studyFinalMcLeanCortex$Cortex$Metadata$CollectionType <- "McLean66" %>% factor
 
-StanleyArray <- new.env()
-load(paste0(GeneralResultsPath, "/studyFinalStanleyArray.rda"), envir = StanleyArray)
-studyFinalSA <- get("studyFinal", envir = StanleyArray)
-
-StanleyConsort <- new.env()
-load(paste0(GeneralResultsPath, "/studyFinalStanleyConsortium.rda"), envir = StanleyConsort)
-studyFinalSC <- get("studyFinal", envir = StanleyConsort)
-
-McLeanCortex <- new.env()
-load(paste0(GeneralResultsPath, "/studyFinalMcLeanCortex.rda"), envir = McLeanCortex)
-studyFinalMcLean <- get("studyFinal", envir = McLeanCortex)
-studyFinalMcLean$Cortex$Metadata$CollectionType <- "McLean66" %>% factor
-
-GSE53987 <- new.env()
-load(paste0(GeneralResultsPath, "/studyFinalGSE53987.rda"), envir = GSE53987)
-studyFinalGSE53987 <- get("studyFinal", envir = GSE53987)
 studyFinalGSE53987 <- lapply(studyFinalGSE53987, function(region){
   region$Metadata$CollectionType <- "Pittsburgh" %>% factor
   region
 })
 
-GSE21138 <- new.env()
-load(paste0(GeneralResultsPath, "/studyFinalGSE21138.rda"), envir = GSE21138)
-studyFinalGSE21138 <- get("studyFinal", envir = GSE21138)
 studyFinalGSE21138$Cortex$Metadata$CollectionType <- "VBBN" %>% factor
 
+studyFinalGSE80655$DLPFC$Metadata$CollectionType <- "PNDRC" %>% factor
 
-for(study in names(studyFinalSA)[-1]){
- assign(paste0("Metadata", study), studyFinalSA[[study]]$Metadata) 
+for(study in names(studyFinalStanleyArray)[-1]){
+ assign(paste0("Metadata", study), studyFinalStanleyArray[[study]]$Metadata) 
 }
 
-for(study in names(studyFinalSC)[-1]){
-  assign(paste0("Metadata", study), studyFinalSC[[study]]$Metadata) 
+for(study in names(studyFinalStanleyConsortium)[-1]){
+  assign(paste0("Metadata", study), studyFinalStanleyConsortium[[study]]$Metadata) 
 }
 
 MetadataGSE53987 <- studyFinalGSE53987$Cortex$Metadata
 MetadataGSE35978 <- studyFinalGSE35978$Cortex$Metadata
-MetadataMcLean <- studyFinalMcLean$Cortex$Metadata
+MetadataMcLean <- studyFinalMcLeanCortex$Cortex$Metadata
 MetadataGSE21138 <- studyFinalGSE21138$Cortex$Metadata
+MetadataGSE80655 <- studyFinalGSE80655$DLPFC$Metadata
 
 for(meta in ls(pat = "Metadata")){
   metaData <- eval(as.name(meta))
@@ -339,10 +328,9 @@ metaCombined <- sapply(ls(pat = "Metadata"), function(studyMeta){
     meta$RIN <- NA
   }
   meta$Study <- gsub("Metadata", "", studyMeta) %>% factor
-  
   meta %<>% select(CommonName, Profile, Age, pH, Sex, PMI, RIN, SubjectID, Study, CollectionType, matches("_Genes"))
   meta
-}, simplify = FALSE) %>% do.call(rbind, .) %>% droplevels()
+}, simplify = FALSE) %>% rbindlist %>% data.frame %>% droplevels()
 
 #Remove cell types for which MGP was never calculated
 CellTypeRM <- names(metaCombined)[apply(metaCombined, 2, function(x) sum(is.na(x))) == nrow(metaCombined)]
@@ -366,6 +354,8 @@ metaCombined$Study2 <-sapply(metaCombined$Study, function(study){
     "McLean66"
   } else if(study == "GSE53987"){
     "ACOME"
+  } else if (study == "GSE80655"){
+    "PNDRC"
   } else if(grepl("AltarC|Chen", study)){
     "SMRI_C"
   } else {
@@ -375,10 +365,11 @@ metaCombined$Study2 <-sapply(metaCombined$Study, function(study){
 
 metaCombined$Study2 <- paste0(metaCombined$Study, " (", metaCombined$Study2, ")")
 metaCombined$SubjStudy <- apply(metaCombined %>% select(CommonName, Study), 1, function(x) paste0(x, collapse = "."))
+names(metaCombined) <- sapply(names(metaCombined), function(x) gsub("\\.", "", x))
 
 ExpAll <- list()
 for(study in ls(pat = "studyFinal.*")){
-  if(grepl("SA|SC", study)){
+  if(grepl("Stanl", study)){
     temp = eval(as.name(study))
     CrtxDS = names(temp)[names(temp) %in% levels(metaCombined$Study)] 
     for(dataset in CrtxDS){
@@ -408,10 +399,10 @@ metaCombinedMelt <- melt(metaCombined, id.vars = grep("_Genes", names(metaCombin
                          variable.name = "CellType",
                          value.name = "MGP")
 
-metaCombinedMelt$CellType <- sapply(metaCombinedMelt$CellType, function(x) gsub("_Genes", "", x))
+metaCombinedMelt$CellType <- sapply(metaCombinedMelt$CellType, function(x) gsub("_Genes|\\.", "", x))
 metaCombinedMelt$Study2 <- factor(metaCombinedMelt$Study2, levels = rev(c("Study2AltarC (SMRI_C)", "Study4Chen (SMRI_C)", "GSE35978 (SMRI_A+C)",
                                                                           "Study1AltarA (SMRI_A)", "Study3Bahn (SMRI_A)", "Study5Dobrin (SMRI_A)", "Study7Kato (SMRI_A)",
-                                                                          "McLean (McLean66)", "GSE21138 (VBBN)", "GSE53987 (ACOME)")))
+                                                                          "McLean (McLean66)", "GSE21138 (VBBN)", "GSE53987 (ACOME)", "GSE80655 (PNDRC)")))
 
 
 EstimateDeltaCell <- sapply(unique(metaCombinedMelt$Study), function(study){
@@ -461,10 +452,11 @@ EstimateDeltaCell$SCZstar <- GetStar(EstimateDeltaCell$SCZpval)
 
 EstimateDeltaCell$Study <- factor(EstimateDeltaCell$Study, levels = c("Study2AltarC", "Study4Chen", "GSE35978",
                                                                       "Study1AltarA", "Study3Bahn", "Study5Dobrin", "Study7Kato",
-                                                                      "McLean", "GSE21138", "GSE53987"))
+                                                                      "McLean", "GSE21138", "GSE53987", "GSE80655"))
 EstimateDeltaCell$Study2 <- factor(EstimateDeltaCell$Study2, levels = c("Study2AltarC (SMRI_C)", "Study4Chen (SMRI_C)", "GSE35978 (SMRI_A+C)",
                                                                         "Study1AltarA (SMRI_A)", "Study3Bahn (SMRI_A)", "Study5Dobrin (SMRI_A)", "Study7Kato (SMRI_A)",
-                                                                        "McLean (McLean66)", "GSE21138 (VBBN)", "GSE53987 (ACOME)"))
+                                                                        "McLean (McLean66)", "GSE21138 (VBBN)", "GSE53987 (ACOME)", "GSE80655 (PNDRC)"))
+
 EstimateDeltaCell$CellType <- factor(EstimateDeltaCell$CellType, levels = c("Astrocyte" ,"Endothelial","Oligo", "OligoPrecursors",
                                                                             "Microglia", "Microglia_activation", "Microglia_deactivation",
                                                                             "GabaPV", "GabaRelnCalb",  "GabaVIPReln",
