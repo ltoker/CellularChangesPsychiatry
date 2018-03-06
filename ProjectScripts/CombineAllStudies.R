@@ -375,7 +375,10 @@ for(study in ls(pat = "studyFinal.*")){
     for(dataset in CrtxDS){
       ExpAll[[dataset]] <- temp[[dataset]]$aned_high
     }
-  } else {
+  } else if(grepl("GSE80655", study)){
+    temp = eval(as.name(study))
+    ExpAll[[gsub("studyFinal", "", study)]] <-  temp$DLPFC$aned_high
+    } else {
     temp = eval(as.name(study))
     ExpAll[[gsub("studyFinal", "", study)]] <-  temp$Cortex$aned_high
   }
