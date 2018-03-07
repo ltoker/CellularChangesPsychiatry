@@ -384,6 +384,7 @@ for(study in ls(pat = "studyFinal.*")){
   }
 }
 
+names(ExpAll) <- sapply(names(ExpAll), function(x) gsub("Cortex", "", x))
 save(ExpAll, metaCombined, file = paste0(GeneralResultsPath, "DataCombined.rda"))
 
 lmResultsBP <- sapply(grep("_Genes", names(metaCombined), value = TRUE), function(celltype){
