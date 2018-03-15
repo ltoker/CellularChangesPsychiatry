@@ -17,15 +17,17 @@ CommonGenes <- names(table(AllGenes))[table(AllGenes) >= 5]
 CommonGenesList <- as.list(CommonGenes)
 names(CommonGenesList) <- CommonGenes
 
+
+
 GetMMgene <- function(geneList = CommonGenesList, coreNum){
   MMgenes <- mclapply(geneList, function(gene){
     temp <- MetaExp[!is.na(MetaExp[[gene]]),] %>% .$SubjectID %>% unlist
     if(length(unique(temp)) < length(temp)){
-      mod1 = "Sex + pH + Age + (1|SubjectID) + (1|Study)"
-      mod2 = "Sex + pH + Age + GabaPV_Genes + Astrocyte_Genes + (1|SubjectID) + (1|Study)"
+      mod1 = "Sex + pH + Age + PMI + (1|SubjectID) + (1|Study)"
+      mod2 = "Sex + pH + Age + PMI + GabaPV_Genes + Astrocyte_Genes + Endothelial_Genes + GabaVIPReln_Genes + Microglia_Genes + Microglia_activation_Genes + Microglia_deactivation_Genes + Oligo_Genes + OligoPrecursors_Genes + PyramidalAll_Genes + (1|SubjectID) + (1|Study)"
     } else {
-      mod1 = "Sex + pH + Age + (1|Study)"
-      mod2 = "Sex + pH + Age + GabaPV_Genes + Astrocyte_Genes + (1|Study)"
+      mod1 = "Sex + pH + Age + PMI + (1|Study)"
+      mod2 = "Sex + pH + Age + PMI + GabaPV_Genes + Astrocyte_Genes + Endothelial_Genes + GabaVIPReln_Genes + Microglia_Genes + Microglia_activation_Genes + Microglia_deactivation_Genes + Oligo_Genes + OligoPrecursors_Genes + PyramidalAll_Genes + (1|Study)"
     }
     gene2 = paste0("`", gene, "`")
     BPmod1null <- lmer(as.formula(paste0(gene2, "~", mod1))  , data = MetaExpBP, REML = FALSE)
@@ -35,11 +37,11 @@ GetMMgene <- function(geneList = CommonGenesList, coreNum){
     
     temp <- MetaExpSCZ[!is.na(MetaExpSCZ[[gene]]),] %>% .$SubjectID %>% unlist
     if(length(unique(temp)) < length(temp)){
-      mod1 = "Sex + pH + Age + (1|SubjectID) + (1|Study)"
-      mod2 = "Sex + pH + Age + GabaPV_Genes + Astrocyte_Genes + (1|SubjectID) + (1|Study)"
+      mod1 = "Sex + pH + Age + PMI + (1|SubjectID) + (1|Study)"
+      mod2 = "Sex + pH + Age + PMI + GabaPV_Genes + Astrocyte_Genes + Endothelial_Genes + GabaVIPReln_Genes + Microglia_Genes + Microglia_activation_Genes + Microglia_deactivation_Genes + Oligo_Genes + OligoPrecursors_Genes + PyramidalAll_Genes + (1|SubjectID) + (1|Study)"
     } else {
-      mod1 = "Sex + pH + Age + (1|Study)"
-      mod2 = "Sex + pH + Age + GabaPV_Genes + Astrocyte_Genes + (1|Study)"
+      mod1 = "Sex + pH + Age + PMI + (1|Study)"
+      mod2 = "Sex + pH + Age + PMI + GabaPV_Genes + Astrocyte_Genes + Endothelial_Genes + GabaVIPReln_Genes + Microglia_Genes + Microglia_activation_Genes + Microglia_deactivation_Genes + Oligo_Genes + OligoPrecursors_Genes + PyramidalAll_Genes + (1|Study)"
     }
     
     SCZmod1null <- lmer(as.formula(paste0(gene2, "~", mod1))  , data = MetaExpSCZ, REML = FALSE)
@@ -84,11 +86,12 @@ GeneStudyPlot <- function(data, gene, title, ptSize = 1){
 }
 
 GetAdjustedExpr <- function(data, gene, adjVar){
-  data <- data[c("CommonName", "SubjectID", "Study", "SubjStudy", "Profile", "Age", "Sex", "pH", gene, "Astrocyte_Genes", "GabaPV_Genes")]
+  data <- data[c("CommonName", "SubjectID", "Study", "SubjStudy", "Profile", "Age", "Sex", "pH", "PMI",  gene, "Astrocyte_Genes", "GabaPV_Genes")]
   names(data)[names(data) == gene] <- "Gene"
   data <- data[!is.na(data$Gene),] %>% droplevels()
   LM <- sapply(unique(data$Study), function(study){
     subData = data[data$Study == study,]
+    subData <- subData[!is.na(subData$pH),]
     Mod <- lm(as.formula(paste0("Gene~", paste0(c("Profile",adjVar), collapse = "+"))), data = subData)
     modFrame <- model.frame(Mod)
     modMatrix <- model.matrix.lm(Mod)
@@ -122,7 +125,7 @@ GeneStudyPlotCombine <- function(data = MetaExpSCZ, gene, ptSize = 0.5){
   return(list(LM0plot = p1, LM1plot = p2))
 }
 
-ScaleAdjExpr <- function(genes, data = NULL, group = NULL, adjVar = c("Sex", "Age", "pH")){
+ScaleAdjExpr <- function(genes, data = NULL, group = NULL, adjVar = c("Sex", "Age", "pH", "PMI")){
   if(is.null(data)){
     if(group == "SCZ"){
       groups = c("Cont", "SCZ")
@@ -162,11 +165,10 @@ ScaleAdjExpr <- function(genes, data = NULL, group = NULL, adjVar = c("Sex", "Ag
 AddMGPdata <- function(AdjData, Meta, celltype){
   MGPdf <- data.frame(AdjExpr = Meta[[celltype]],
                       Gene = Meta[[celltype]])
-  MGPdf <- cbind(MGPdf, Meta %>% select(Profile, Sex, Age, pH, Study, SubjectID, SubjStudy))
+  MGPdf <- cbind(MGPdf, Meta %>% select(Profile, Sex, Age, pH, Study, PMI, SubjectID, SubjStudy))
   MGPdf$GeneSymbol <- celltype
   MGPdf$AdjExpScaled <- scale(MGPdf$AdjExpr) %>% as.numeric
   MGPdf$NonAdjScaled <- scale(MGPdf$Gene) %>% as.numeric
-  
   AdjData <- rbind(MGPdf, AdjData)
   AdjData$Type <- sapply(AdjData$GeneSymbol, function(x){
     if(grepl("Genes", x)){
@@ -179,106 +181,14 @@ AddMGPdata <- function(AdjData, Meta, celltype){
 }
 
 AdjScaleHeatmap <- function(AdjData, Meta, title, xlab = "Subjects", ylab = "Genes",
-                            ExpCol = AdjExpScaled,
-                            GrpCount = GroupNum, geneType = NULL, celltype = NULL,
-                            Ysize = NULL){
-  AdjData$Study <- factor(AdjData$Study, levels = names(GrpCount))
-  
-  #Filter and arrange genes and subjects
-  if(!is.null(geneType)){
-    GeneNum = sapply(levels(AdjData$Study), function(study){
-      nrow(PCAresults[[study]][[1]]$All[[celltype]]$rotation)
-    })
-    
-    #Add the MGP to AdjDataDF
-    MGPdf <- data.frame(AdjExpr = Meta[[celltype]],
-                        Gene = Meta[[celltype]])
-    MGPdf <- cbind(MGPdf, Meta %>% select(Profile, Sex, Age, pH, Study, SubjectID, SubjStudy))
-    MGPdf$GeneSymbol <- celltype
-    MGPdf$AdjExpScaled <- scale(MGPdf$AdjExpr)
-    MGPdf$NonAdjScaled <- scale(MGPdf$Gene)
-    
-    AdjData <- rbind(MGPdf, AdjData)
-    
-    #Subject order
-    AdjData <- sapply(levels(AdjData$Study), function(study){
-      CellGenes <- rownames(PCAresults[[study]][[1]]$All[[celltype]]$rotation)
-      StudyGenes <- AdjData[AdjData$Study == study & AdjData$GeneSymbol %in% c(celltype, CellGenes),] %>% droplevels()
-    }, simplify = FALSE) %>% rbindlist()
-    SubjOrder <- Meta %>% arrange_(.dots = c("Profile", geneType)) %>% .$SubjStudy %>% as.character()
-    AdjData$SubjStudy <- factor(AdjData$SubjStudy, levels = unique(SubjOrder))
-    
-    #Gene order
-    AdjDataDF <- sapply(levels(AdjData$Study), function(study){
-      StudyGenes <- AdjData[AdjData$Study == study,] %>% data.frame() %>% droplevels
-      ScaleExpDF <- data.frame(SubjStudy = unique(StudyGenes$SubjStudy), Study = study)
-      for(gene in unique(StudyGenes$GeneSymbol)){
-        temp <- StudyGenes[StudyGenes$GeneSymbol == gene,] %>% select(SubjStudy, AdjExpScaled) %>% data.frame() %>% droplevels()
-        names(temp)[2] <- gene 
-        ScaleExpDF <- merge(ScaleExpDF, temp, by = "SubjStudy")
-      }
-      ScaleExpDF
-    }, simplify = FALSE) %>% rbindlist(fill = TRUE)
-  }
-  GeneOrder <- hclust(dist(1-cor(AdjDataDF[,-c(1:2)],use = "pairwise.complete")), method = "ward.D2") %>%
-    dendro_data() %>% .$labels
-  GeneOrder <- GeneOrder$label %>% as.character
-  GeneOrder <- c(GeneOrder[!grepl(celltype, GeneOrder)], celltype)
-  
-  AdjData$GeneSymbol <- factor(AdjData$GeneSymbol, levels = GeneOrder)
-  
-  AdjData$Type <- sapply(AdjData$GeneSymbol, function(x){
-    if(grepl("Genes", x)){
-      "MGP"
-    } else {
-      "Gene"
-    } 
-  })
-  
-  GrpcolBar <- data.frame(Study = names(GrpCount),
-                          xmin1 = 0.5,
-                          xmax1 = lapply(GrpCount, function(x) x$n[1]+0.5) %>% unlist,
-                          xmin2 = lapply(GrpCount, function(x) x$n[1]+0.5) %>% unlist,
-                          xmax2 = lapply(GrpCount, function(x) sum(x$n[1] + x$n[2])+0.5) %>% unlist,
-                          ymin = -GeneNum/10,
-                          ymax = 0)
-  if(is.null(Ysize)){
-    Ysize = 0.2
-  }
-  ggplot(AdjData , aes(SubjStudy, GeneSymbol)) +
-    theme_minimal()+
-    geom_tile(aes_string(fill = ExpCol)) +
-    scale_fill_gradient2(low = "darkslateblue", mid = "white", high = "gold1", midpoint = 0, limits = c(-2.5,2.5)) +
-    theme(axis.text.x = element_blank(),
-          axis.ticks.x = element_blank(),
-          axis.text.y = element_text(size=Ysize),
-          legend.position = "top",
-          legend.justification =  c(0,0)) +
-    labs(title = title, x=xlab, y=ylab) +
-    geom_rect(data = GrpcolBar, aes(xmin = GrpcolBar$xmin2,
-                                    xmax =  GrpcolBar$xmax2,
-                                    ymin = GrpcolBar$ymin,
-                                    ymax = GrpcolBar$ymax),
-              fill = "brown2", inherit.aes = FALSE) +
-    geom_rect(data = GrpcolBar, aes(xmin = GrpcolBar$xmin1,
-                                    xmax =  GrpcolBar$xmax1,
-                                    ymin = GrpcolBar$ymin,
-                                    ymax = GrpcolBar$ymax),
-              fill = "cyan4", inherit.aes = FALSE) +
-    facet_wrap(~Study, scales = "free")
-}
-
-AdjScaleHeatmap2 <- function(AdjData, Meta, title, xlab = "Subjects", ylab = "Genes",
                              ExpCol = AdjExpScaled,
                              GrpCount = GroupNum, geneType = NULL, celltype = NULL,
                              Ysize = NULL, KnownMarkers = c("ALDH1L1", "SOX9", "AQP4", "SLC1A3"),
                              GeneCol = c("cornflowerblue", "gold3", "coral2", "darkolivegreen4", "grey20")){
   AdjData$Study <- factor(AdjData$Study, levels = names(GrpCount))
-  
-  
   GeneNum = sapply(levels(AdjData$Study), function(study){
     nrow(PCAresults[[study]][[1]]$All[[celltype]]$rotation)
-  })
+  }) %>% unlist
   
   GrpcolBar <- data.frame(Study = names(GrpCount),
                           xmin1 = 0.5,
@@ -396,12 +306,6 @@ AdjScaleHeatmap2 <- function(AdjData, Meta, title, xlab = "Subjects", ylab = "Ge
             label_size = 12)
 }
 
-GeneMGPused <- function(PCAdata, celltype){
-  temp <- lapply(PCAdata, function(study){
-    names(study[[1]]$All[[celltype]]$rotation[,1])
-  }) %>% unlist %>% table
-  names(temp[temp > 2])
-}
   
 if(length(list.files(path = GeneralResultsPath, pattern = "MetaExprCombined.rds")) == 0){
   meta <- metaCombined %>% filter(!is.na(Astrocyte_Genes))
@@ -466,8 +370,8 @@ BPcombine$Marker <- sapply(BPcombine$GeneSymbol, function(gene){
     NA
   }
 })
-save(BPcombine, file = paste(GeneralResultsPath, "MMgenesBP.rda"))
-write.table(BPcombine, file = "BPcombine.txt", row.names = FALSE, sep = "\t")
+save(BPcombine, file = paste(GeneralResultsPath, "MMgenesBP_allMGP.rda"))
+write.table(BPcombine, file = "BPcombine_allMGP.txt", row.names = FALSE, sep = "\t")
 
 SCZcombine$Marker <- sapply(SCZcombine$GeneSymbol, function(gene){
   if(gene %in% HumanMarkers$Astrocyte){
@@ -499,10 +403,10 @@ MistryCombined <- rbind(MistryDown, MistryUP)
 
 SCZcombine$MistryFC <- MistryCombined$FoldChange[match(SCZcombine$GeneSymbol, MistryCombined$GeneSymbol)]
 SCZcombine$MistryqVal <- MistryCombined$Qvalue[match(SCZcombine$GeneSymbol, MistryCombined$GeneSymbol)]
-save(SCZcombine, file = paste(GeneralResultsPath, "MMgenesSCZ.rda"))
-write.table(SCZcombine, file = paste0(GeneralResultsPath, "SCZcombine.txt"), row.names = FALSE, sep = "\t")
-write.table(SCZcombine %>% filter(FC_mod0 < 1), file = paste0(GeneralResultsPath, "SCZcombineDownMod0.txt"), row.names = FALSE, sep = "\t", col.names = TRUE)
-write.table(SCZcombine %>% filter(FC_mod1 < 1), file = paste0(GeneralResultsPath, "SCZcombineDownMod1.txt"), row.names = FALSE, sep = "\t", col.names = TRUE)
+save(SCZcombine, file = paste(GeneralResultsPath, "MMgenesSCZ_allMGP.rda"))
+write.table(SCZcombine, file = paste0(GeneralResultsPath, "SCZcombine_allMGP.txt"), row.names = FALSE, sep = "\t")
+write.table(SCZcombine %>% filter(FC_mod0 < 1), file = paste0(GeneralResultsPath, "SCZcombineDownMod0_allMGP.txt"), row.names = FALSE, sep = "\t", col.names = TRUE)
+write.table(SCZcombine %>% filter(FC_mod1 < 1), file = paste0(GeneralResultsPath, "SCZcombineDownMod1_allMGP.txt"), row.names = FALSE, sep = "\t", col.names = TRUE)
 
 SCZmistry <- SCZcombine[!is.na(SCZcombine$MistryFC),]
 SCZmistryMelt <- melt(data.table(SCZmistry),
@@ -593,24 +497,6 @@ GroupNum <- sapply(unique(MetaExpSCZ$Study), function(study){
 }, simplify = F)
 names(GroupNum) <- unique(MetaExpSCZ$Study)
 
-
-
-AdjScaleHeatmap(GabaPVGenesAdj, Meta = MetaExpSCZ, title = "GabaPVGenesAdj, no MGPadj", ExpCol = "AdjExpScaled",
-                geneType = "GabaPV_Genes", celltype = "GabaPV_Genes", Ysize = 6)
-ggsave("GabaPVGenesAdjusted.pdf", path = GeneralResultsPath, width = 8, height = 6, units = "in", dpi=300)
-
-AdjScaleHeatmap(GabaPVGenesAdj, Meta = MetaExpSCZ, title = "GabaPVGenesAdj, not Adjusted",ExpCol = "NonAdjScaled",
-                geneType = "GabaPV_Genes", celltype = "GabaPV_Genes", Ysize = 6)
-ggsave("GabaPVGenesNotAdjusted.pdf", path = GeneralResultsPath, width = 8, height = 6, units = "in", dpi=300)
-
-AdjScaleHeatmap(AstroGenesAdj, Meta = MetaExpSCZ, title = "AstrocyteGenesAdj, no MGPadj", ExpCol = "AdjExpScaled",
-                geneType = "Astrocyte_Genes", celltype = "Astrocyte_Genes")
-ggsave("AstrocyteGenesAdjusted.pdf", path = GeneralResultsPath, width = 8, height = 6, units = "in", dpi=300)
-
-AdjScaleHeatmap(AstroGenesAdj, Meta = MetaExpSCZ, title = "AstrocyteGenesAdj, not Adjusted", ExpCol = "NonAdjScaled",
-                geneType = "Astrocyte_Genes", celltype = "Astrocyte_Genes")
-ggsave("AstrocyteGenesNotAdjusted.pdf", path = GeneralResultsPath, width = 8, height = 6, units = "in", dpi=300)
-
 #Plotting with gene boxplots and MGP
 pdf(paste0(GeneralResultsPath, "/GabaPVGenesNotAdjusted2.pdf"), width = 12, height = 8,  pointsize = 12, useDingbats = FALSE)
 AdjScaleHeatmap2(GabaPVGenesAdj, Meta = MetaExpSCZ, title = "GabaPVGenesAdj, not Adjusted",ExpCol = "NonAdjScaled",
@@ -619,40 +505,20 @@ AdjScaleHeatmap2(GabaPVGenesAdj, Meta = MetaExpSCZ, title = "GabaPVGenesAdj, not
 dev.off()
 
 pdf(paste0(GeneralResultsPath, "/AstrocyteGenesNotAdjusted2.pdf"), width = 12, height = 8,  pointsize = 12, useDingbats = FALSE)
-AdjScaleHeatmap2(AstroGenesAdj, Meta = MetaExpSCZ, title = "AstrocyteGenesAdj, not Adjusted", ExpCol = "NonAdjScaled",
+AdjScaleHeatmap(AstroGenesAdj, Meta = MetaExpSCZ, title = "AstrocyteGenesAdj, not Adjusted", ExpCol = "NonAdjScaled",
                  geneType = "Astrocyte_Genes", celltype = "Astrocyte_Genes",
                  GeneCol = c("cornflowerblue", "gold3", "coral2", "darkolivegreen4", "grey20"))
 dev.off()
 
-#Look at the expression of markers in human cells
-MGPused <- list()
-MGPused$Astrocytes <- GeneMGPused(PCAdata = PCAresults, celltype = "Astrocyte_Genes")
-MGPused$GabaPV <- GeneMGPused(PCAdata = PCAresults, celltype = "GabaPV_Genes")
-
-
-temp <- MouseGenesProp(unique(HumanMarkers$Astrocyte), MGPused = MGPused$Astrocytes,
-                       MetaData = DarmanisMeta, ExpData = DarmanisExp)
-
-ExpMatrixNorm = temp$PheatData$Mat
-
-pdf(paste0(GeneralResultsPath, "/AstrocyteMarkerHumanMGPused.pdf"), width = 8, height = 8,  pointsize = 14, useDingbats = FALSE)
-pheatmap(ExpMatrixNorm[rownames(ExpMatrixNorm) %in% MGPused$Astrocytes,],
-         show_rownames = FALSE, show_colnames = FALSE, cluster_cols = FALSE, cluster_rows = FALSE,
-         annotation_col = temp$PheatData$ann_column,
-         annotation_colors = temp$PheatData$ann_colors, main = "Astrocyte markers\nused for MGP analysis")
-dev.off()
-
-pdf(paste0(GeneralResultsPath, "/AstrocyteMarkerHumanMGPexcluded.pdf"), width = 8, height = 8,  pointsize = 15, useDingbats = FALSE)
-pheatmap(ExpMatrixNorm[!rownames(ExpMatrixNorm) %in% MGPused$Astrocytes,],
-         show_rownames = FALSE, show_colnames = FALSE, cluster_cols = FALSE, cluster_rows = FALSE,
-         annotation_col = temp$PheatData$ann_column,
-         annotation_colors = temp$PheatData$ann_colors, main = "Astrocyte markers\nexcluded from MGP analysis")
-dev.off()
-
-ggsave("AstroMarkHumanExpressed.pdf", plot = temp$Boxplot1, path = GeneralResultsPath, width = 10, height = 4, units = "in", dpi=300)
-ggsave("AstroMarkHumanExpressionLevel.pdf", plot = temp$Boxplot2, path = GeneralResultsPath, width = 10, height = 4, units = "in", dpi=300)
-
 #Run ErmineJ
+if(!"ermineR" %in% rownames(installed.packages())){
+  install_github("oganm/ermineR", force = T)
+}
+library(ermineR)
+
+rownames(SCZcombine) <- SCZcombine$GeneSymbol
+rownames(BPcombine) <- BPcombine$GeneSymbol
+
 Anno_fileGeneric <- read.table("Generic_human_noParents.an.txt", sep = "\t", header = TRUE, comment = "#", quote = "")
 
 CommonGeneAnnoFile <- Anno_fileGeneric %>% filter(GeneSymbols %in% CommonGenes) %>%
@@ -660,18 +526,54 @@ CommonGeneAnnoFile <- Anno_fileGeneric %>% filter(GeneSymbols %in% CommonGenes) 
 
 write.table(CommonGeneAnnoFile, file ="AnnotationsCommonGenes.txt", row.names = FALSE, col.names = TRUE, sep = "\t")
 
-scriptLoc = paste0("~/CellularProportionsPsychiatry/ProjectScripts/ErmineJscript.sh")
-AnnoFile = paste0(getwd(), "/AnnotationsCommonGenes.txt")
-OutDir = GeneralResultsPath
+temp <- gsr(scores = SCZcombine, scoreColumn = "pValDown_mod0", bigIsBetter = F, logTrans = T, annotation = CommonGeneAnnoFile, aspects = "B")
+temp2 <- gsr(scores = SCZcombine, scoreColumn = "pValDown_mod1", bigIsBetter = F, logTrans = T, annotation = CommonGeneAnnoFile, aspects = "B")
 
-ScoreFile = paste0(GeneralResultsPath, "SCZcombine.txt")
-ScoreCol = grep("pVal_mod0", names(SCZcombine))
-OutFile = paste0(OutDir, "ErmineJ_MixModSCZmod0.txt")
-Type = "-l"
-RexExp = paste(scriptLoc, ScoreFile, ScoreCol, AnnoFile, Type, OutFile)
-system(paste("source ~/.bashrc; ERMINEJ_HOME=~/$ERMINEJ_HOME; cd $ERMINEJ_HOME;",RexEx))
+temp3 <- gsr(scores = BPcombine, scoreColumn = "pValDown_mod0", bigIsBetter = F, logTrans = T, annotation = CommonGeneAnnoFile, aspects = "B")
+temp4 <- gsr(scores = BPcombine, scoreColumn = "pValDown_mod1", bigIsBetter = F, logTrans = T, annotation = CommonGeneAnnoFile, aspects = "B")
 
 
-ScoreCol = grep("pVal_mod1", names(SCZcombine))
-OutFile = paste0(OutDir, "ErmineJ_MixModSCZmod1.txt")
-RexExp = paste(scriptLoc, ScoreFile, ScoreCol, AnnoFile, Type, OutFile)
+
+MitoTerm <- temp2$results %>% data.frame() %>% select(-GeneMembers, -Same.as) %>% .[grep("mitochond|respiratory ele|ATP|oxidative phosph|nucleoside triphosphate",.$Name),] %>% .$Name
+
+MitoRanksSCZ <- data.frame(No_MGPadj = which(temp$results$Name %in% MitoTerm),
+                           pAdjNo_MGP = temp$results$CorrectedPvalue[which(temp$results$Name %in% MitoTerm)],
+                           MGPadj = which(temp2$results$Name %in% MitoTerm),
+                           pAdjMGP = temp2$results$CorrectedPvalue[which(temp2$results$Name %in% MitoTerm)],
+                           Group = "SCZ") %>% data.table %>% melt(id.vars = "Group", measure=patterns("MGPadj", "pAdj"), variable.factor = TRUE,
+                                                                  variable.name = "Model", value.name = c("Rank", "AdjPval"))
+                        
+MitoRanksBP <- data.frame(No_MGPadj = which(temp3$results$Name %in% MitoTerm),
+                          pAdjNo_MGP = temp3$results$CorrectedPvalue[which(temp3$results$Name %in% MitoTerm)],
+                          MGPadj = which(temp4$results$Name %in% MitoTerm),
+                          pAdjMGP = temp4$results$CorrectedPvalue[which(temp4$results$Name %in% MitoTerm)],
+                          Group = "BP") %>% data.table %>% melt(id.vars = "Group", measure=patterns("MGPadj", "pAdj"), variable.factor = TRUE,
+                                                                variable.name = "Model", value.name = c("Rank", "AdjPval"))
+
+MitoRanks <- rbind(MitoRanksSCZ, MitoRanksBP) %>% data.frame()
+levels(MitoRanks$Model) <- c("No_MGPadj", "MGPadj")
+
+MitoRanks$Signif <- sapply(MitoRanks$AdjPval, function(x){
+  if(x < 0.1){
+    "Yes"
+  } else {
+    "No"
+  }
+}) %>% factor(levels = c("Yes", "No"))
+
+SCZnoMGPadjSig <- temp$results %>% data.frame()  %>% select(-GeneMembers, -Same.as, -matches("Multifunc|MFP"), -NumProbes) %>% filter(CorrectedPvalue < 0.1)
+SCZMGPadjSig <- temp2$results %>% data.frame()  %>% select(-GeneMembers, -Same.as, -matches("Multifunc|MFP"), -NumProbes) %>% filter(CorrectedPvalue < 0.1)
+sum(MitoTerm %in% SCZnoMGPadjSig$Name)
+sum(MitoTerm %in% SCZMGPadjSig$Name)
+
+ggplot(MitoRanks, aes(Model, Rank)) + 
+  theme_classic(base_size = 12) +
+  labs(title = "Ranks of mitochondria-related gene-sets (ErmineJ GSR method)") +
+  facet_wrap(~Group) +
+  geom_violin() +
+  scale_y_reverse() +
+  geom_boxplot(width = 0.08, outlier.shape = NA) +
+  geom_jitter(width = 0.08, alpha = 0.4, size = 1, aes(color = Signif)) +
+  scale_color_manual(values = c("darkred", "black"), guide = FALSE)
+ggsave("MitoRanksSCZ.pdf", path = GeneralResultsPath, width = 8, height = 6, units = "in", dpi=300)
+
