@@ -575,5 +575,5 @@ ggplot(MitoRanks, aes(Model, Rank)) +
   geom_boxplot(width = 0.08, outlier.shape = NA) +
   geom_jitter(width = 0.08, alpha = 0.4, size = 1, aes(color = Signif)) +
   scale_color_manual(values = c("darkred", "black"), guide = FALSE)
-ggsave("MitoRanksSCZ.pdf", path = GeneralResultsPath, width = 8, height = 6, units = "in", dpi=300)
+ggsave("MitoRanks.pdf", path = GeneralResultsPath, width = 8, height = 6, units = "in", dpi=300)
 
