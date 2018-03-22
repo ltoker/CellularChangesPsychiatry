@@ -1,4 +1,5 @@
 source("SetUp.R")
+packageF("parallel")
 
 PreProcces2 <- function(Data, meta){
   aned <- Data$aned
@@ -134,6 +135,10 @@ OkatyExpMelt <- melt(OkatyExp, id.vars = c("Probe", "GeneSymbol"),
                      variable.name = "SampleName", value.name = "Exp")
 OkatyExpMelt$Age <- OkatyMeta$age[match(OkatyExpMelt$SampleName, OkatyMeta$Series_sample_id)] %>% ordered()
 
+OkatyExpMelt$AgeDays <- sapply(OkatyExpMelt$Age, function(x){
+  as.numeric(as.character(gsub("P", "", x)))
+})
+
 temp <- group_by(OkatyExpMelt, Age, Probe) %>% summarise(Mean = mean(Exp)) %>% data.frame
 temp <- group_by(temp, Probe) %>% summarise(Max = max(Mean))
 
@@ -142,6 +147,19 @@ lmResults <- mclapply(unique(OkatyExpMelt$Probe),function(probe){
   anv <- anova(lm.mod)
   cbind(t(lm.mod$coefficients), anv["Age",])
 },mc.cores = detectCores())
+
+VarExp <- mclapply(unique(OkatyExpMelt$Probe),function(probe){ 
+  lm.mod <- lm(Exp ~ 1 + Age, data = OkatyExpMelt %>% filter(Probe == probe))
+  temp <- summary(lm.mod)
+  temp$r.squared
+},mc.cores = 0.5*detectCores()) %>% unlist
+
+VarExp2 <- mclapply(unique(OkatyExpMelt$Probe),function(probe){ 
+  data = OkatyExpMelt %>% filter(Probe == probe)
+  loess.mod <- loess(Exp ~ 1 + AgeDays, data = data)
+  temp <- predict(loess.mod)
+  (cor(temp, data$Exp))^2
+},mc.cores = 0.5*detectCores()) %>% unlist
 
 names(lmResults) <- OkatyExpMelt$Probe %>% unique()
 lmResults <-  rbindlist(lmResults, use.names = TRUE, idcol="Probe")
