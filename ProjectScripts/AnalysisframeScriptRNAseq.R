@@ -1,4 +1,19 @@
 source("SetUp.R")
+packageF("biomaRt")
+
+Count2CPM <- function(countData){
+  apply(countData, 2, function(smp){
+    TotalCount = sum(smp)
+    (10^6)*smp/TotalCount
+  })
+}
+
+
+ensembl <- useMart(biomart = "ensembl", dataset="hsapiens_gene_ensembl")
+
+geneNames <- getBM(attributes = c("hgnc_symbol", "ensembl_gene_id"), mart = ensembl)
+
+MitoGenes <- geneNames[grepl("MT-", geneNames$hgnc_symbol),]
 
 #Reading tables
 ######################################################################################################
@@ -27,10 +42,32 @@ Metadata <- GetMeta(name, subCol = subCol)
 Metadata %<>% filter(Profile != "MD")
 
 #Remove brain regions not represented in NeuroExpresso
-
 Metadata <- Metadata[!is.na(Metadata$NeuExpRegion),] %>% droplevels()
 Metadata %<>% mutate(Filename = Series_sample_id,
                      Study = name)
+
+#Get the count matrix and filter mitochondrial genes
+
+countMatrix <- read.csv(paste0(name, "/data/countMatrix.genes"), header=TRUE, sep = "\t", quote = "")
+CountSum <- apply(countMatrix[grepl("GSM", colnames(countMatrix))], 2, sum)
+
+MitoCountSum <- apply(countMatrix[countMatrix$genes %in% MitoGenes$ensembl_gene_id,
+                                  grepl("GSM", colnames(countMatrix))], 2, sum)
+
+MitoCountFiltered <- countMatrix[!countMatrix$genes %in% MitoGenes$ensembl_gene_id,]
+
+CPMmatrix <- Count2CPM(MitoCountFiltered[-1])
+
+#log2 transformation
+CPMmatrix <- apply(CPMmatrix, c(1,2), function(x) {log2(x+1)})
+
+GeneSymbol <- geneNames$hgnc_symbol[match(MitoCountFiltered$genes, geneNames$ensembl_gene_id)]
+
+ExpData <- data.frame(GeneSymbol = GeneSymbol,
+                      Probe = GeneSymbol,
+                      ensemblID = MitoCountFiltered$genes)
+
+ExpData <- cbind(ExpData, CPMmatrix) 
 
 RegionData <- sapply(levels(Metadata$OrgRegion), function(region){
   subMeta = Metadata %>% filter(OrgRegion == region)
