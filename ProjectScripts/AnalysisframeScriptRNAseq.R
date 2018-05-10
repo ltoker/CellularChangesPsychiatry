@@ -204,6 +204,7 @@ sapply(names(studyFinal), function(stdName){
 
 save.image(paste0(GeneralResultsPath, name, ".RData"))
 save(studyFinal, file = paste0(GeneralResultsPath, "studyFinal", name, ".rda"))
+save(PCA_results, file = paste0(GeneralResultsPath, "PCAresults", name, ".Rda"))
 
 
 
