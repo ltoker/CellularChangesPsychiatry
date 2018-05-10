@@ -15,6 +15,8 @@ for(study in AnalysisStudies){
     for(study2 in names(PCA_results)){
       PCAresults[[paste0("PCAresults", study2)]] <-  PCA_results[[study2]]
       }
+  } else if (study == "GSE80655"){
+    PCAresults[[paste0("PCAresults", study)]] <- PCA_results$DLPFC
     } else {
       PCAresults[[paste0("PCAresults", study)]] <- PCA_results$Cortex
     }

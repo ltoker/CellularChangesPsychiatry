@@ -74,7 +74,7 @@ MouseGenesProp <- function(genes, MGPused, ExpData = DarmanisExp, MetaData = Dar
                            cellColor = c("red", "orange", "grey", "green", "darkgreen", "blue")){
   genes = toupper(genes)
   #this part is here because of Gemma annotations
-  genes <- sapply(genes, function(x) strsplit(x, "\\.")[[1]][1])
+  genes <- sapply(genes, function(x) strsplit(x, "\\.")[[1]][1]) %>% unique()
   tempGene <- ExpData[ExpData$GeneSymbol %in% genes,]
   tempGene %<>% mutate(GeneSymbol = factor(GeneSymbol, levels = genes)) %>% droplevels()
   tempGeneMelt <- melt(tempGene, id.vars = c("GeneSymbol"), variable.name = "GSM", value.name = "Expression")

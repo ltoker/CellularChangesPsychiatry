@@ -1,6 +1,12 @@
 source("SetUp.R")
 packageF("parallel")
 
+if(!"markerGeneProfile" %in% rownames(installed.packages())){
+  install_github("oganm/markerGeneProfile", force = T)
+}
+library(markerGeneProfile)
+data("mouseMarkerGenesCombined")
+
 PreProcces2 <- function(Data, meta){
   aned <- Data$aned
   Metadata <- meta
@@ -12,7 +18,10 @@ PreProcces2 <- function(Data, meta){
   return(output)
 }
 
+source(paste0(GenScriptPath, "Cell_type_PCA.R"))
+
 shortPCA <- function(data, celltype){
+  source(paste0(GenScriptPath, "Cell_type_PCA.R"))
   PCAresult <- prcomp(t(data %>% dplyr::select(matches("GSM"))), scale = TRUE)
   PCAresult <- correct_sign("GabaPV", PCAresult)
   while (sum(PCAresult$rotation[,1] > 0) < nrow(PCAresult$rotation)){
@@ -394,10 +403,12 @@ for(name in AnalysisStudies){
         select(NeuExpRegion) %>%
         unlist %>% as.character
       assign(paste0(study, "_", region), MGPcorAllgenes[[study]])
-    }
-  } else {
-    assign(paste0(name, "_Cortex"), MGPcorAllgenes$Cortex)
-  }
+      }
+    } else if(name == "GSE80655"){
+      assign(paste0(name, "_Cortex"), MGPcorAllgenes$DLPFC)
+      } else {
+        assign(paste0(name, "_Cortex"), MGPcorAllgenes$Cortex)
+        }
 }
 
 allStudyCor <- sapply(ls(pat = "_Cortex$"), function(study){
@@ -412,9 +423,10 @@ allStudyCor <- sapply(ls(pat = "_Cortex$"), function(study){
   }, simplify = FALSE)
   do.call(rbind, data2)
 }, simplify = FALSE) %>% do.call(rbind, .) %>% data.frame()
-allStudyCor %<>% mutate_each(funs(as.factor), -Cor)
 
-allStudyCor$Profile <- relevel(allStudyCor$Profile, ref = "Cont")
+allStudyCor %<>% mutate_if(is.factor, as.character)
+
+allStudyCor$Profile <- relevel(factor(allStudyCor$Profile), ref = "Cont")
 
 allStudyCor$CellType <- sapply(allStudyCor$CellType, function(x){
   gsub("_Genes", "_MGP", x)

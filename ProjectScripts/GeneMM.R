@@ -434,7 +434,6 @@ ggplot(SCZmistryMelt, aes(MistryFC,FC, color = Model)) +
 ggsave("MistryUndCurrentFCcor.pdf", path = GeneralResultsPath, width = 8, height = 6, units = "in", dpi=300)
 
 
-GeneStudyPlot(MetaExpSCZ, gene = "B4GAT1", title = "Not adjusted")
 
 #Show adjusted expression for NECAB3 that was given as an example in Mistry et al
 temp <- GeneStudyPlotCombine(gene = "NECAB3")
@@ -499,7 +498,7 @@ names(GroupNum) <- unique(MetaExpSCZ$Study)
 
 #Plotting with gene boxplots and MGP
 pdf(paste0(GeneralResultsPath, "/GabaPVGenesNotAdjusted2.pdf"), width = 12, height = 8,  pointsize = 12, useDingbats = FALSE)
-AdjScaleHeatmap2(GabaPVGenesAdj, Meta = MetaExpSCZ, title = "GabaPVGenesAdj, not Adjusted",ExpCol = "NonAdjScaled",
+AdjScaleHeatmap(GabaPVGenesAdj, Meta = MetaExpSCZ, title = "GabaPVGenesAdj, not Adjusted",ExpCol = "NonAdjScaled",
                  geneType = "GabaPV_Genes", celltype = "GabaPV_Genes", KnownMarkers = c("TAC1", "PVALB"),
                  GeneCol = c("cornflowerblue", "gold3", "grey20"))
 dev.off()

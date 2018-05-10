@@ -104,14 +104,13 @@ MistryGenesUP$GeneSymbolOrg <- MistryGenesUP$GeneSymbol
 MistryGenesUP$GeneSymbol <- sapply(MistryGenesUP$Probe, function(x) Anno_file %>% filter(ProbeName == as.character(x)) %>%
                                        .$GeneSymbol) %>% make.names
 
-if(length(list.files(path = "GeneralResults", pattern = "GeneMGPcor.rda") == 1)){
+if(length(list.files(path = "GeneralResults", pattern = "GeneMGPcor.rda")) == 1){
   load("GeneralResults/GeneMGPcor.rda")
 } else {
   load("AnalysisStudies.rda")
   StanleyStudies <- read.table("StanleyStudies.txt", sep="\t", header=T)
-  
   for(name in AnalysisStudies){
-    load(paste0("MGPcorAllgenes_", name,".rda"))
+    load(paste0(GeneralResultsPath, "MGPcorAllgenes_", name,".rda"))
     rm(list = ls(pat=paste0(name, "_Cortex$")))
     MGPcorAllgenes <- lapply(MGPcorAllgenes, function(std){
       lapply(std, function(cellType){
@@ -131,6 +130,8 @@ if(length(list.files(path = "GeneralResults", pattern = "GeneMGPcor.rda") == 1))
           unlist %>% as.character
         assign(paste0(study, "_", region), MGPcorAllgenes[[study]])
       }
+    } else if(name == "GSE80655"){
+      assign(paste0(name, "_Cortex"), MGPcorAllgenes$DLPFC)
     } else {
       assign(paste0(name, "_Cortex"), MGPcorAllgenes$Cortex)
     }
