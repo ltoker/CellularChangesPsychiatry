@@ -44,29 +44,6 @@ plotCountsMGPpairs <- function(data, labels, pch = 16, col = "grey", method = "s
 MetadataAltarC <- studyFinal$Study2AltarC$Metadata
 MetadataChen4 <- studyFinal$Study4Chen$Metadata
 
-Uranova <- read.table("URANOVAraw.txt", header = FALSE, sep = "\t")
-Uranova %<>% select(V1, V2, V3, V4, V5, V6, V7, V8) %>% filter(V1 %in% c("Code", "Area 9", "Layer VI"))
-Uranova$V1 <- as.character(Uranova$V1)
-Uranova$V1[seq(4, 40, 4)] <- "WM"
-Uranova$V1[seq(3, 39, 4)] <- "GMse"
-Uranova$V1[seq(2, 38, 4)] <- "GM"
-
-Uranova <- data.frame(StanleyID = Uranova %>% filter(V1 == "Code") %>% select(-V1, -V2) %>% as.list() %>% unlist %>% as.character(),
-                      GMCount = Uranova %>% filter(V1 == "GM") %>% select(-V1, -V2) %>% as.list() %>% unlist %>% as.character %>% as.numeric(),
-                      GMse = Uranova %>% filter(V1 == "GMse") %>% select(-V1, -V2) %>% as.list() %>% unlist %>% as.character %>% as.numeric(),
-                      WMCount = Uranova %>% filter(V1 == "WM") %>% select(-V1, -V2) %>% as.list() %>% unlist %>% as.character %>% as.numeric())
-Uranova$Oligo_MGPAltarC <- MetadataAltarC$Oligo_Genes[match(Uranova$StanleyID, MetadataAltarC$StanleyID)]
-Uranova$Oligo_MGPChen4 <- MetadataChen4$Oligo_Genes[match(Uranova$StanleyID, MetadataChen4$StanleyID)]
-Uranova$CommonName <- MetadataAltarC$CommonName[match(Uranova$StanleyID, MetadataAltarC$StanleyID)]
-Uranova$Profile <- MetadataAltarC$Profile[match(Uranova$StanleyID, MetadataAltarC$StanleyID)]
-
-Uranova %<>% arrange(GMCount)
-Uranova %<>% mutate(GMCountnorm = rescale(GMCount, c(0,1)))
-#Uranova %<>% filter(!is.na(.$Oligo_MGPAltarC))
-UranovaMelt <- melt(Uranova %>% select(matches("ID|CommonName|norm|MGP|Profile")), id.vars = c("StanleyID", "CommonName", "Profile"),
-                    variable.name = "MeasureType", value.name = "Value") %>% .[complete.cases(.),] %>% droplevels()
-
-levels(UranovaMelt$MeasureType) <- c("Oligo MGP (BA46/BA10)\nStudy2AltarC", "Oligo MGP (BA6)\nStudy4Chen", "Oligo cell count (BA9, L4)\nUranova 2004")
 
 plotCountsMGPgroupResults <- function(data, pvalTxtSize = 6){
   ContMedian <- data %>% filter(Profile == "Cont") %>% group_by(MeasureType) %>%
@@ -110,17 +87,6 @@ plotCountsMGPpairs <- function(data, labels, pch = 16, col = "grey", method = "s
         xaxt = "n", yaxt = "n", pch = 16, col = "grey")
 }
 
-plotCountsMGPgroupResults(UranovaMelt)
-ggsave("GeneralResults/Oligo_SMRIcountsMGP.pdf", width = 6, height = 6, units = "in",
-       dpi=300, useDingbats = FALSE)
-
-
-pdf("GeneralResults/Oligo_SMRIcountsMGPcor.pdf", width = 6, height = 6,  pointsize = 14, useDingbats = FALSE)
-plotCountsMGPpairs(data  = Uranova %>% select(GMCount, Oligo_MGPAltarC),
-                   labels = c("Cell count\nBA9, L4\n\nUranova 2004 " ,
-                              #"MGP \nBA6\n\nStudy4Chen",
-                              "MGP \nBA46/BA10\n\nStudy2AltarC"))
-dev.off()
 
 
 Reynolds <- read.table("ReynoldsINCountsSMRI.txt.csv", header = TRUE, sep = "\t")
@@ -129,7 +95,7 @@ Reynolds$GabaPV_MGPAltarC <- MetadataAltarC$GabaPV_Genes[match(Reynolds$ID, Meta
 Reynolds$GabaPV_MGPChen4 <- MetadataChen4$GabaPV_Genes[match(Reynolds$ID, MetadataChen4$StanleyID)]
 Reynolds$CommonName <- MetadataAltarC$CommonName[match(Reynolds$ID, MetadataAltarC$StanleyID)]
 Reynolds$Profile <- MetadataAltarC$Profile[match(Reynolds$ID, MetadataAltarC$StanleyID)]
-Reynolds <- merge(Reynolds, MetadataAltarC %>% select(StanleyID, Age, Sex, pH, PMI), by.x = "ID", by.y = "StanleyID", all = FALSE)
+Reynolds <- merge(Reynolds, MetadataAltarC %>% select(StanleyID, Age, Sex, pH, PMI), by.x = "ID", by.y = "StanleyID", all = TRUE)
 
 Reynolds %<>% arrange(GabaPV_MGPChen4) 
 Reynolds$ID <- factor(Reynolds$ID, levels = Reynolds$ID)
@@ -194,3 +160,36 @@ plotCountsMGPpairs(data  = Reynolds %>% select(PV.46, PV.9, GabaPV_MGPChen4, Gab
                               "MGP \nBA46/BA10\n\nStudy2AltarC"))
 dev.off()
 
+ReynoldsMelt2 <- melt(Reynolds %>% select(matches("ID|CommonName|PV\\.46$|PV\\.9$|GabaPV_MGP|Profile|Sex|pH|PMI|Age")),
+                      id.vars = c("ID", "CommonName",
+                                  "Profile", "PV.46", "PV.9", "Sex", "Age", "pH", "PMI"),
+                      variable.name = "Study", value.name = "MGP") %>% .[complete.cases(.),] %>% droplevels()
+ReynoldsMelt2$Study <- sapply(ReynoldsMelt2$Study, function(x){
+  gsub("GabaPV_MGP", "", x)
+}) %>% factor
+
+lmm0 <- lmer(MGP~Age + Sex + pH + PMI + (1|Study) + (1|ID), REML = FALSE, data = ReynoldsMelt2)
+lmm1 <- lmer(MGP~Age + Sex + pH + PMI + PV.9 + (1|Study) + (1|ID), REML = FALSE, data = ReynoldsMelt2)
+lmm1b <- lmer(MGP~Age + Sex + pH + PMI + PV.46 + (1|Study) + (1|ID), REML = FALSE, data = ReynoldsMelt2)
+lmm1c <- lmer(MGP~Profile + Age + Sex + pH + PMI + (1|Study) + (1|ID), REML = FALSE, data = ReynoldsMelt2)
+lmm2 <- lmer(MGP~Age + Sex + pH + PMI + PV.46 + PV.9 + (1|Study) + (1|ID), REML = FALSE, data = ReynoldsMelt2)
+lmm3 <- lmer(MGP~Profile + Age + Sex + pH + PMI + PV.9 + (1|Study) + (1|ID), REML = FALSE, data = ReynoldsMelt2)
+lmm3b <- lmer(MGP~Profile + Age + Sex + pH + PMI + PV.9 + PV.46 + (1|Study) + (1|ID), REML = FALSE, data = ReynoldsMelt2)
+lmm3c <- lmer(MGP~Profile + Age + Sex + pH + PMI + (1|Study) + (1|ID), REML = FALSE, data = ReynoldsMelt2)
+
+
+ANOVAres <- anova(lmm0, lmm3c, lmm3b)
+Models <- attr(ANOVAres, "heading")[3:5] %>% data.frame()
+names(Models) <- "Model"
+
+write.table(Models, paste0(GeneralResultsPath, "MGPcountModel.tsv"), append = FALSE, row.names = FALSE, sep = "\t")
+write.table(ANOVAres, paste0(GeneralResultsPath, "MGPcountModel.tsv"), append = TRUE, row.names = TRUE, sep = "\t")
+
+NoAdjMod <- summary(lmm3c)$coefficients
+NoAdjMod <- rbind(NoAdjMod, NA)
+rownames(NoAdjMod)[nrow(NoAdjMod)] <- "PV.9"
+AdjMod <- summary(lmm3)$coefficients
+
+EffectTable <- cbind(NoAdjMod, AdjMod)
+EffectTable <- apply(EffectTable, c(1,2), function(x) round(x, digits  = 2))
+write.table(EffectTable, paste0(GeneralResultsPath, "MGPcountEffectTable.tsv"), row.names = TRUE, sep = "\t")
