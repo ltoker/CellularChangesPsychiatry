@@ -4,10 +4,16 @@ StanleyStudies <- read.table("StanleyStudies.txt", header = TRUE, sep = "\t")
 StudySamplesAll <- c("Dataset", "BrainRegion", "BrainRegion(Org)",  "Platform", "NoiseThreshold", "Samples(Org)", "SingleBatchExcluded",
                                "OutlierExcluded", "MisannotatedExcluded", "Samples(Final)")
 
-for(DataSet in list.files(path = ResultsPath, pattern = "studyFinal")){
-  load(paste0(ResultsPath, DataSet))
+Datasets <- list.files(path = GeneralResultsPath, pattern = "studyFinal")
+Datasets <- Datasets[!grepl("CommonMind", Datasets)]
+
+for(DataSet in Datasets){
+  load(paste0(GeneralResultsPath, DataSet))
   DataSet = gsub("studyFinal|\\.rda", "", DataSet)
   if(!grepl("Stanley", DataSet)){
+    if(grepl("GSE80655", DataSet)){
+      studyFinal <- studyFinal["DLPFC"]
+    }
     MetaOrg <- read.table(paste(DataSet, "Metadata.tsv", sep = "/"), header = TRUE, sep = "\t")
     names(MetaOrg)[grep("disease|Diagnosis|profile|phenotype", names(MetaOrg), ignore.case=TRUE)] <- "Profile"
     names(MetaOrg)[grep("(tissue$|region|brain.?region)", names(MetaOrg),ignore.case = TRUE)] <- "Region"
@@ -34,6 +40,9 @@ for(DataSet in list.files(path = ResultsPath, pattern = "studyFinal")){
     }, simplify=TRUE)
     
     MetaOrg <- MetaOrg[!grepl("MD|depres", MetaOrg$Profile),] %>% filter(!is.na(.$Profile))
+    if(grepl("GSE80655", DataSet)){
+      MetaOrg %<>% filter(Region == "DLPFC", Profile != "Major Depression") %>% droplevels()
+    }
   }
   for(study in names(studyFinal)){
     Region = studyFinal[[study]]$Metadata$NeuExpRegion %>% unique  %>% as.character()
