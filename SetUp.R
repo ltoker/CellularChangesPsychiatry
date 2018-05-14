@@ -17,6 +17,8 @@ source(paste0(ProjScriptPath,"projectFunc.R"))
 packageF("sva")
 packageF("gplots")
 packageF("scales")
+packageF("devtools")
+packageF("magrittr")
 select = dplyr::select
 filter = dplyr::filter
 mutate = dplyr::mutate
