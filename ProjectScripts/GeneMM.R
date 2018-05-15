@@ -371,7 +371,7 @@ BPcombine$Marker <- sapply(BPcombine$GeneSymbol, function(gene){
   }
 })
 save(BPcombine, file = paste(GeneralResultsPath, "MMgenesBP_allMGP.rda"))
-write.table(BPcombine, file = "BPcombine_allMGP.txt", row.names = FALSE, sep = "\t")
+write.table(BPcombine, file = paste0(GeneralResultsPath,"BPcombine_allMGP.txt"), row.names = FALSE, sep = "\t")
 
 SCZcombine$Marker <- sapply(SCZcombine$GeneSymbol, function(gene){
   if(gene %in% HumanMarkers$Astrocyte){
@@ -531,6 +531,14 @@ temp2 <- gsr(scores = SCZcombine, scoreColumn = "pValDown_mod1", bigIsBetter = F
 temp3 <- gsr(scores = BPcombine, scoreColumn = "pValDown_mod0", bigIsBetter = F, logTrans = T, annotation = CommonGeneAnnoFile, aspects = "B")
 temp4 <- gsr(scores = BPcombine, scoreColumn = "pValDown_mod1", bigIsBetter = F, logTrans = T, annotation = CommonGeneAnnoFile, aspects = "B")
 
+write.table(temp$results %>% data.frame,
+            file = paste0(GeneralResultsPath, "SCZ_EnrichNoAdj.tsv"), row.names = FALSE, col.names = TRUE, sep = "\t")
+write.table(temp2$results %>% data.frame,
+            file = paste0(GeneralResultsPath, "SCZ_EnrichAdj.tsv"), row.names = FALSE, col.names = TRUE, sep = "\t")
+write.table(temp3$results %>% data.frame,
+            file = paste0(GeneralResultsPath, "BP_EnrichNoAdj.tsv"), row.names = FALSE, col.names = TRUE, sep = "\t")
+write.table(temp4$results %>% data.frame,
+            file = paste0(GeneralResultsPath, "BP_EnrichAdj.tsv"), row.names = FALSE, col.names = TRUE, sep = "\t")
 
 
 MitoTerm <- temp2$results %>% data.frame() %>% select(-GeneMembers, -Same.as) %>% .[grep("mitochond|respiratory ele|ATP|oxidative phosph|nucleoside triphosphate",.$Name),] %>% .$Name
