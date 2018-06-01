@@ -125,7 +125,7 @@ MouseGenesProp <- function(genes, MGPused, ExpData = DarmanisExp, MetaData = Dar
     geom_jitter(size = 0.5, alpha = 0.2, width = 0.2) + facet_wrap(~MGPused)
   
   #Normalize the expression 0-1 for heatmap
-  ScaledExp <- sapply(tempGeneMelt$GeneSymbol, function(gene){
+  ScaledExp <- sapply(unique(tempGeneMelt$GeneSymbol), function(gene){
     subData <- tempGeneMelt[tempGeneMelt$GeneSymbol == gene,]
     subData$NormExp <- rescale(subData$Expression, c(0,1))
     subData
