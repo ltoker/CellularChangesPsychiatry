@@ -48,6 +48,13 @@ RNAseqMetaStanley <- RNAseqMeta %>%
   filter(Individual_ID..RNAseq.Library.BID..Synapse. %in% as.character(Meta1Stanley$RNASeq.BID)) %>%
   droplevels()
 
+RNAseqMetaStanley %<>% mutate_at(grep("Reads", names(RNAseqMetaStanley), value = T), as.character)
+RNAseqMetaStanley %<>% mutate_at(grep("Reads", names(RNAseqMetaStanley), value = T), as.numeric)
+RNAseqMetaStanley$rRNARate <- sapply(RNAseqMetaStanley$rRNARate, function(x){
+  x <- gsub("%", "", as.character(x))
+  as.numeric(x)
+})
+
 Meta1Stanley$SequencingPlatform <- RNAseqMetaStanley$SequencingPlatform[match(Meta1Stanley$RNASeq.BID,
                                                                               RNAseqMetaStanley$Individual_ID..RNAseq.Library.BID..Synapse.)]
 Meta1Stanley$rRNArate <- RNAseqMetaStanley$rRNARate[match(Meta1Stanley$RNASeq.BID,
@@ -74,5 +81,7 @@ Metadata %<>% arrange(Profile) %<>% droplevels()
 Metadata$CommonName <- apply(SampleNum, 1, function(x){
   paste0(x[1], "_", 1:x[2])
 }) %>% unlist
+
+Meta
 
 ######################
