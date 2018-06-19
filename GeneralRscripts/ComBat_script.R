@@ -24,7 +24,6 @@ if("Batch" %in%  names(Metadata)){
   })
   
   #Run combat only if group factor is not confounded with batch
-  
   if(sum(ProfileBatch$Confound == "Yes") == 0){
     #Excluse the samples that were scaned alone
     single_sample <- Metadata$CommonName[Metadata$Batch == bad_batch]
@@ -43,7 +42,7 @@ if("Batch" %in%  names(Metadata)){
     if(length(unique(batch)) > 1) {
       #Create the files for ComBat
       exp_file <- aned_good[,-c(1:3)]
-      rownames(exp_file) <- aned_good[,1]
+      rownames(exp_file) <- aned_good$Probe
       
       
       if(length(levels(as.factor(Metadata$Profile))) > 1){
@@ -150,7 +149,7 @@ if("Batch" %in%  names(Metadata)){
     if(length(unique(batch)) > 1) {
       #Create the files for ComBat
       exp_file <- aned_good[,-c(1:3)]
-      rownames(exp_file) <- aned_good[,1]
+      rownames(exp_file) <- aned_good$Probe
       
       
       if(length(levels(as.factor(Metadata$Profile))) > 1){
@@ -162,7 +161,7 @@ if("Batch" %in%  names(Metadata)){
       }
       
       #ComBat function
-      aned_combat<- ComBat(dat=exp_file, mod=mod, batch=batch, par.prior=T, prior.plots=F)
+      aned_combat<- ComBat(dat=exp_file, mod=mod, batch=batch, par.prior=TRUE, prior.plots=F)
       aned_good <- cbind(aned_good[,1:3],aned_combat)
     } else {
       print("All samples analysed during the same day")
