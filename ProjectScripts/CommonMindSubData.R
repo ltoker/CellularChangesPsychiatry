@@ -32,6 +32,7 @@ HighRINdata$HighRIN_GabaPVMGP <- HighRIN_MGPresults$All$GabaPV_Genes$x[match(Hig
 HighRINdata$HighRIN_AstroMGP <- rescale(HighRINdata$HighRIN_AstroMGP, c(0,1))
 HighRINdata$HighRIN_GabaPVMGP <- rescale(HighRINdata$HighRIN_GabaPVMGP, c(0,1))
 
+
 # Run MGP analysis on subsampled data 
 #####################################
 ContSamp <- grep("Cont", studyFinal$BA9$Metadata$CommonName, value = T)
@@ -88,12 +89,17 @@ SubData2 <- sapply(names(Rot), function(RotNum){
   list(GeneMGPcor = GeneMGPcor, Data = Data)
 }, simplify = FALSE)
 
+#Get the variance explained and metadata for ech subsample
 SubPC1fsPVcor <- mclapply(SubData2, function(RotNum){
   cor(RotNum$Data$SubGabaPV_Genes, RotNum$Data$SubPC1allGenes, method = "spearman")
 }, mc.cores = 0.5*detectCores()) %>% unlist
 
 SubPC1Astrocor <- mclapply(SubData2, function(RotNum){
   cor(RotNum$Data$SubAstrocyte_Genes, RotNum$Data$SubPC1allGenes, method = "spearman")
+}, mc.cores = 0.5*detectCores()) %>% unlist
+
+SubPC1Pyramidalcor <- mclapply(SubData2, function(RotNum){
+  cor(RotNum$Data$Pyramidal_Genes, RotNum$Data$SubPC1allGenes, method = "spearman")
 }, mc.cores = 0.5*detectCores()) %>% unlist
 
 SubRINfsPVcor <- mclapply(SubData2, function(RotNum){
@@ -114,8 +120,10 @@ SubCorDF <- data.frame(Study = "CommonMind",
                        RINfsPVcor = abs(SubRINfsPVcor),
                        PC1Astrocor = abs(SubPC1Astrocor),
                        RINAstrocor = abs(SubRINAstrocor),
-                       PC1allRINcor = abs(SubPC1allRINcor))
+                       PC1allRINcor = abs(SubPC1allRINcor),
+                       PC1Pyramidalcor = abs(SubPC1Pyramidalcor))
 
+#Get the shifts for each subsample
 WilcoxShiftAstro <- mclapply(SubData2, function(Rot){
   x = Rot$Data
   Stat <- wilcox.test(SubAstrocyte_Genes~Profile, data = x, conf.int=T)
@@ -172,8 +180,39 @@ SliWindPV <- data.frame(PC1 = rollapply(temp2$PC1, width = 10, by = 5, FUN = mea
                            WlCxDelta = rollapply(temp$ShiftPV, width = 10, by = 5, FUN = mean, align = "left"),
                            Study = "CommonMind")
 
+############### Get data from other datasetes ############################
+
 load("GeneralResults/PCAresultsList.rda")
 load("GeneralResults/DataCombined.rda")
+
+PsychEncode <- new.env()
+load("GeneralResults/PCAresultsPsychEncode.Rda", envir = PsychEncode)
+PCAresultsPsychEncode <- get("PCA_results", pos = PsychEncode)
+for(i in 1:length(PCAresultsPsychEncode)){
+  names(PCAresultsPsychEncode$Cortex[[i]]$All)[grepl("Pyramidal_Genes", names(PCAresultsPsychEncode$Cortex[[1]]$All))] <- "PyramidalAll_Genes"
+}
+
+load("GeneralResults/studyFinalPsychEncode.rda", envir = PsychEncode)
+studyFinalPsychEncode <- get("studyFinal", pos = PsychEncode)
+
+rm(PsychEncode)
+
+MetaPsychEncode <-studyFinalPsychEncode$Cortex$Metadata
+names(MetaPsychEncode) <- sapply(names(MetaPsychEncode), function(x) gsub("Death| ", "", x))
+names(MetaPsychEncode)[grepl("Pyramidal_Genes", names(MetaPsychEncode))] <- "PyramidalAll_Genes"
+
+MetaPsychEncode %<>% mutate(Study = "PsychEncode",
+                            Study2 = "PsychEncode",
+                            CollectionType = "PsychEncode",
+                            Profile2 = Profile,
+                            SubjStudy = paste0(CommonName, ".PsychEncode"),
+                            SubjectID = RNASeq.BID)
+
+PCAresults$PsychEncode <- PCAresultsPsychEncode$Cortex
+
+ExpAll$PsychEncode <- studyFinalPsychEncode$Cortex$aned_high
+
+metaCombined <- rbind(metaCombined, MetaPsychEncode %>% select_(.dots = names(metaCombined)))
 
 names(PCAresults) <- sapply(names(PCAresults), function(x){
   gsub("PCAresults|Cortex", "", x)
@@ -218,7 +257,7 @@ ggplot(SliWindAstroAll %>% filter(Study != "Study2AltarC") , aes(PC1, WlCxDelta,
   labs(y = "Change in Astrocyte MGP", x = "MGP variance explained (%)") +
   geom_point() +
   scale_color_manual(values=c("black", "burlywood4", "deeppink", "darkorchid1", "chocolate1", "cadetblue",
-                              "cornflowerblue", "brown1", "darkgoldenrod1", "darkgreen"), name = "Dataset")
+                              "cornflowerblue", "brown1", "darkgoldenrod1", "darkgreen", "chartreuse"), name = "Dataset")
 ggsave("AstroPC1deltaShift.pdf", path = GeneralResultsPath, width = 8, height = 4, units = "in", dpi=300)
 
 VarExplainedPVAll <- mclapply(PCAresults[names(PCAresults) != "Study4Chen"], function(study){
@@ -260,7 +299,7 @@ ggplot(SliWindPVAll %>% filter(Study != "Study2AltarC") , aes(PC1, WlCxDelta, co
   labs(y = "Change in fsPV MGP", x = "MGP variance explained (%)") +
   geom_point() +
   scale_color_manual(values=c("black", "burlywood4", "deeppink", "darkorchid1", "chocolate1", "cadetblue",
-                              "cornflowerblue", "brown1", "darkgoldenrod1", "darkgreen"), name = "Dataset")
+                              "cornflowerblue", "brown1", "darkgoldenrod1", "darkgreen", "chartreuse"), name = "Dataset")
 ggsave("GabaPVPC1deltaShift.pdf", path = GeneralResultsPath, width = 8, height = 4, units = "in", dpi=300)
 
 #Get PC1 based on all genes for each subsampling rotation
@@ -284,6 +323,7 @@ PC1allDataRot <- sapply(names(PCAresults), function(study){
     })
     temp$Astrocyte_Genes <- RotMeta$Astrocyte_Genes[match(temp$CommonName, RotMeta$CommonName)]
     temp$GabaPV_Genes <- RotMeta$GabaPV_Genes[match(temp$CommonName, RotMeta$CommonName)]
+    temp$Pyramidal_Genes <- RotMeta$PyramidalAll_Genes[match(temp$CommonName, RotMeta$CommonName)]
     temp$RIN <- RotMeta$RIN[match(temp$CommonName, RotMeta$CommonName)]
     temp$Profile <- relevel(as.factor(temp$Profile), ref = "Cont")
     temp
@@ -300,6 +340,10 @@ RotCorDF <- lapply(PC1allDataRot, function(study){
     cor(RotNum$Astrocyte_Genes, RotNum$PC1allGenes, method = "spearman")
   }, mc.cores = 0.5*detectCores()) %>% unlist
   
+  SubPC1Pyramidalcor <- mclapply(study, function(RotNum){
+    cor(RotNum$Pyramidal_Genes, RotNum$PC1allGenes, method = "spearman")
+  }, mc.cores = 0.5*detectCores()) %>% unlist
+  
   SubRINfsPVcor <- mclapply(study, function(RotNum){
     cor(RotNum$GabaPV_Genes, RotNum$RIN, method = "spearman")
   }, mc.cores = 0.5*detectCores()) %>% unlist
@@ -311,15 +355,16 @@ RotCorDF <- lapply(PC1allDataRot, function(study){
   SubPC1allRINcor <- mclapply(study, function(RotNum){
     cor(RotNum$PC1allGenes, RotNum$RIN, method = "spearman")
   }, mc.cores = 0.5*detectCores()) %>% unlist
-  
   SubCorDF <- data.frame(RotNum = names(SubPC1fsPVcor),
                          PC1fsPVcor = abs(SubPC1fsPVcor),
                          RINfsPVcor = abs(SubRINfsPVcor),
                          PC1Astrocor = abs(SubPC1Astrocor),
                          RINAstrocor = abs(SubRINAstrocor),
-                         PC1allRINcor = abs(SubPC1allRINcor))
+                         PC1allRINcor = abs(SubPC1allRINcor),
+                         PC1Pyramidalcor = abs(SubPC1Pyramidalcor))
   SubCorDF
 })
+
 
 for(study in names(RotCorDF)){
   RotCorDF[[study]]$Study <- study
@@ -333,7 +378,8 @@ RotCorDFcombined$Study <- relevel(RotCorDFcombined$Study, ref = "CommonMind")
 
 MedianCor <- group_by(RotCorDFcombined, Study) %>%
   summarise(MedianPC1fsPV = median(PC1fsPVcor),
-            MedianPC1Astro = median(PC1Astrocor)) %>%
+            MedianPC1Astro = median(PC1Astrocor),
+            MedianPC1Pyr = median(PC1Pyramidalcor)) %>%
   data.frame() %>% arrange(desc(MedianPC1fsPV))
 
 RotCorDFcombined$Study <- factor(RotCorDFcombined$Study, levels = MedianCor$Study)
@@ -357,7 +403,7 @@ ggplot(RotCorDFcombined %>% filter(!is.na(RINfsPVcor)), aes(Study, RINfsPVcor)) 
   theme(panel.grid = element_blank()) +
   labs(x = "Study", y = "RIN fsPV cor") +
   geom_boxplot(outlier.size = 1)
-ggsave("RINGabaPVcorRot.pdf", path = GeneralResultsPath, width = 8, height = 2, units = "in", dpi=300)
+ggsave("RINGabaPVcorRot.pdf", path = GeneralResultsPath, width = 6, height = 2, units = "in", dpi=300)
 
 ggplot(RotCorDFcombined %>% filter(!is.na(RINfsPVcor)), aes(Study, RINAstrocor)) +
   theme_bw() +
@@ -417,10 +463,10 @@ corFunc <- function(cor1, cor2, xloc, yloc, PC1Data = PC1allData ){
 PC1_AstroCor <- corFunc("PC1allGenes", "Astrocyte_Genes", 0.2, 0)
 PC1_PVCor <- corFunc("PC1allGenes", "GabaPV_Genes", 0.2, 0)
 PV_AstroCor <- corFunc("Astrocyte_Genes", "GabaPV_Genes", 0.2, 0)
-PC1_RINCor <- corFunc("RIN","PC1allGenes", c(9, 8.5),0.8, 
-                       PC1Data = PC1allData %>% filter(Study %in% c("CommonMind", "GSE53987")) %>% droplevels )
-fsPV_MGP_RINCor <- corFunc("RIN", "GabaPV_Genes", c(9, 8.5),0.15,
-                      PC1Data = PC1allData %>% filter(Study %in% c("CommonMind", "GSE53987")) %>% droplevels )
+PC1_RINCor <- corFunc("RIN","PC1allGenes", c(9, 8.5, 8.5),0.8, 
+                       PC1Data = PC1allData %>% filter(Study %in% c("CommonMind", "GSE53987", "PsychEncode")) %>% droplevels )
+fsPV_MGP_RINCor <- corFunc("RIN", "GabaPV_Genes", c(9, 8.5, 8.5),0.15,
+                      PC1Data = PC1allData %>% filter(Study %in% c("CommonMind", "GSE53987", "PsychEncode")) %>% droplevels )
 
 
 ggplot(PC1allData, aes(Profile, PC1allGenes)) +
@@ -451,7 +497,7 @@ ggplot(PC1allData, aes(PC1allGenes, GabaPV_Genes)) +
   geom_text(data = PC1_PVCor,  mapping = aes(x = x, y = y, label = Cor), inherit.aes = FALSE, color = "red")
 ggsave("PC1_PVCor.pdf", path = GeneralResultsPath, width = 8, height = 6, units = "in", dpi=300)
 
-ggplot(PC1allData %>% filter(Study %in% c("CommonMind", "GSE53987")), aes(RIN, PC1allGenes)) +
+ggplot(PC1allData %>% filter(Study %in% c("CommonMind", "GSE53987", "PsychEncode")), aes(RIN, PC1allGenes)) +
   theme_bw() +
   theme(panel.grid = element_blank()) +
   labs(x = "RIN", y = "PC1 score") +
@@ -460,7 +506,7 @@ ggplot(PC1allData %>% filter(Study %in% c("CommonMind", "GSE53987")), aes(RIN, P
   geom_text(data = PC1_RINCor,  mapping = aes(x = x, y = y, label = Cor), inherit.aes = FALSE, color = "red")
 ggsave("PC1_RINCor.pdf", path = GeneralResultsPath, width = 6, height = 3, units = "in", dpi=300)
 
-ggplot(PC1allData %>% filter(Study %in% c("CommonMind", "GSE53987")), aes(RIN, GabaPV_Genes)) +
+ggplot(PC1allData %>% filter(Study %in% c("CommonMind", "GSE53987", "PsychEncode")), aes(RIN, GabaPV_Genes)) +
   theme_bw() +
   theme(panel.grid = element_blank()) +
   labs(x = "RIN", y = "fsPVMGP") +

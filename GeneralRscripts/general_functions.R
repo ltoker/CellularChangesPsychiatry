@@ -751,12 +751,23 @@ GetCommonName <- function(Metadata, Multi = Multi, char=char){
   return(Metadata)
 }
 
-ModelAdj <- function(model, adj=data.frame(effect = "sex", adjValue=0)){
+ModelAdj <- function(model, adj=data.frame(effect = "sex", adjValue=NULL)){
   type = class(model) %>% .[1]
   data <- model.frame(model)
   mod.matrix = as.matrix(model.matrix(model))
   for(i in 1:nrow(adj)){
-    mod.matrix[,grep(adj$effect[i], colnames(mod.matrix), ignore.case=T)] <- adj$adjValue[i]
+    Effect = grep(adj$effect[i], colnames(mod.matrix), ignore.case=T, value = T)
+    EffectType = class(mod.matrix[Effect])
+    if(adj$adjValue[i] == ""){
+      if(EffectType == "factor"){
+        adjValue == 0
+      } else {
+        adjValue = mean(mod.matrix[,grep(Effect, colnames(mod.matrix))])
+      }
+    } else {
+      adjValue = adj$adjValue[i]
+    }
+    mod.matrix[,grep(Effect, colnames(mod.matrix), ignore.case=T)] <- adjValue
   }
   if(type=="lmerMod"){
     fixefVec = t(fixef(model)) %>% as.vector
